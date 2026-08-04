@@ -31,7 +31,7 @@ export const Route = createFileRoute("/settings")({
       { property: "og:description", content: description },
     ],
   }),
-  component: Settings;
+  component: Settings,
 });
 
 function SettingsCard({
