@@ -36,17 +36,17 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <section className="border-t border-border bg-surface">
-      <div className="mx-auto max-w-3xl px-5 py-24">
-        <SectionHeading eyebrow="FAQ" title="Questions, answered" />
-        <Reveal delay={0.1} className="mt-10">
+    <section className="border-t border-border bg-surface" aria-labelledby="faq-heading">
+      <div className="section-container section-padding max-w-3xl">
+        <SectionHeading id="faq-heading" eyebrow="FAQ" title="Questions, answered" />
+        <Reveal delay={0.1} className="mt-8 md:mt-10">
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq) => (
               <AccordionItem key={faq.q} value={faq.q} className="border-border">
-                <AccordionTrigger className="text-left text-base font-semibold hover:no-underline">
+                <AccordionTrigger className="py-5 text-left text-base font-semibold leading-6 hover:no-underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                <AccordionContent className="pb-5 text-sm leading-6 text-muted-foreground">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>

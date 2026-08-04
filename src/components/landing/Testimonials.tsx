@@ -1,4 +1,5 @@
 import { Quote } from "lucide-react";
+import { LandingCard } from "@/components/site/LandingCard";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 
@@ -25,32 +26,40 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section className="mx-auto max-w-6xl px-5 py-24">
+    <section className="section-container section-padding" aria-labelledby="testimonials-heading">
       <SectionHeading
+        id="testimonials-heading"
         eyebrow="Testimonials"
         title="Voices from the people using it daily"
         description="Clinics, classrooms and kitchen tables — wherever a conversation needs to happen."
       />
 
-      <div className="mt-14 grid gap-5 lg:grid-cols-3">
+      <ul className="section-gap grid list-none gap-6 lg:grid-cols-3">
         {testimonials.map((item, i) => (
-          <Reveal key={item.name} delay={i * 0.08}>
-            <figure className="flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
-              <Quote className="h-6 w-6 text-primary/40" aria-hidden="true" />
-              <blockquote className="mt-4 flex-1 leading-relaxed text-pretty">“{item.quote}”</blockquote>
-              <figcaption className="mt-6 flex items-center gap-3 border-t border-border pt-5">
-                <span className="bg-brand grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-semibold text-primary-foreground">
-                  {item.name.charAt(0)}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold">{item.name}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{item.role}</span>
-                </span>
-              </figcaption>
-            </figure>
+          <Reveal key={item.name} delay={i * 0.08} as="li">
+            <LandingCard className="flex h-full flex-col p-8">
+              <figure className="flex h-full flex-col">
+                <Quote className="h-6 w-6 text-primary/50" aria-hidden="true" />
+                <blockquote className="mt-4 flex-1 text-base leading-7 text-pretty">
+                  “{item.quote}”
+                </blockquote>
+                <figcaption className="mt-8 flex items-center gap-4 border-t border-border pt-6">
+                  <span
+                    className="bg-brand grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-semibold text-primary-foreground"
+                    aria-hidden="true"
+                  >
+                    {item.name.charAt(0)}
+                  </span>
+                  <span className="min-w-0">
+                    <cite className="block truncate text-sm font-semibold not-italic">{item.name}</cite>
+                    <span className="block truncate text-xs leading-4 text-muted-foreground">{item.role}</span>
+                  </span>
+                </figcaption>
+              </figure>
+            </LandingCard>
           </Reveal>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }

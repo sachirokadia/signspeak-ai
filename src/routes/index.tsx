@@ -28,8 +28,14 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="min-h-dvh">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus-ring fixed top-4 left-4 z-[100] rounded-lg bg-background px-4 py-2 text-sm font-medium shadow-lift"
+      >
+        Skip to main content
+      </a>
       <Navbar />
-      <main>
+      <main id="main-content">
         <Hero />
         <Features />
         <HowItWorks />

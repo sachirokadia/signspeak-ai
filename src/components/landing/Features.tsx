@@ -1,4 +1,5 @@
 import { Camera, Gauge, Globe2, Keyboard, Shield, Volume2 } from "lucide-react";
+import { LandingCard } from "@/components/site/LandingCard";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 
@@ -37,26 +38,30 @@ export const featureList = [
 
 export function Features() {
   return (
-    <section className="mx-auto max-w-6xl px-5 py-24">
+    <section className="section-container section-padding" aria-labelledby="features-heading">
       <SectionHeading
+        id="features-heading"
         eyebrow="Features"
         title="Built for conversations that can't wait"
         description="Everything needed to turn movement into meaning — precise, transparent and comfortable to use all day."
       />
 
-      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="section-gap grid list-none gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {featureList.map((feature, i) => (
-          <Reveal key={feature.title} delay={i * 0.06}>
-            <article className="group h-full rounded-2xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-accent text-accent-foreground transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-                <feature.icon className="h-5 w-5" aria-hidden="true" />
+          <Reveal key={feature.title} delay={i * 0.06} as="li">
+            <LandingCard className="group h-full p-6">
+              <span
+                className="grid h-12 w-12 place-items-center rounded-xl bg-accent text-accent-foreground transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground"
+                aria-hidden="true"
+              >
+                <feature.icon className="h-5 w-5" />
               </span>
-              <h3 className="mt-5 text-base font-semibold">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.body}</p>
-            </article>
+              <h3 className="mt-6 text-base font-semibold leading-6">{feature.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.body}</p>
+            </LandingCard>
           </Reveal>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }

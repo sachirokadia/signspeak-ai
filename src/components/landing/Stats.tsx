@@ -1,7 +1,8 @@
 "use client";
 
-import { animate, useInView } from "motion/react";
+import { animate, useInView, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { LandingCard } from "@/components/site/LandingCard";
 import { Reveal } from "@/components/site/Reveal";
 
 const stats = [
@@ -11,25 +12,42 @@ const stats = [
   { value: 12, suffix: "k", label: "Daily conversations", detail: "Translated across 34 countries" },
 ];
 
-function Counter({ value, suffix }: { value: number; suffix: string }) {
+function Counter({ value, suffix, label }: { value: number; suffix: string; label: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  const [display, setDisplay] = useState(0);
+  const inView = useInView(ref, { once: true, margin: "-64px" });
+  const prefersReducedMotion = useReducedMotion();
+  const [display, setDisplay] = useState(prefersReducedMotion ? value : 0);
+  const [isAnimating, setIsAnimating] = useState(!prefersReducedMotion);
 
   useEffect(() => {
     if (!inView) return;
+
+    if (prefersReducedMotion) {
+      setDisplay(value);
+      setIsAnimating(false);
+      return;
+    }
+
+    setIsAnimating(true);
     const controls = animate(0, value, {
       duration: 1.4,
       ease: [0.22, 1, 0.36, 1],
       onUpdate: (latest) => setDisplay(latest),
+      onComplete: () => setIsAnimating(false),
     });
     return () => controls.stop();
-  }, [inView, value]);
+  }, [inView, value, prefersReducedMotion]);
 
   const formatted = Number.isInteger(value) ? Math.round(display) : display.toFixed(1);
 
   return (
-    <span ref={ref} className="text-gradient font-display text-4xl font-semibold sm:text-5xl">
+    <span
+      ref={ref}
+      className="text-gradient font-display text-4xl font-semibold leading-none sm:text-5xl"
+      aria-live="polite"
+      aria-busy={isAnimating}
+      aria-label={`${formatted}${suffix} ${label}`}
+    >
       {formatted}
       {suffix}
     </span>
@@ -38,15 +56,15 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
 
 export function Stats() {
   return (
-    <section className="border-y border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-6 px-5 py-20 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="border-y border-border bg-surface" aria-label="Product statistics">
+      <div className="section-container grid gap-6 py-16 sm:grid-cols-2 sm:py-20 lg:grid-cols-4">
         {stats.map((stat, i) => (
           <Reveal key={stat.label} delay={i * 0.08}>
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-              <Counter value={stat.value} suffix={stat.suffix} />
-              <p className="mt-3 text-sm font-semibold">{stat.label}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{stat.detail}</p>
-            </div>
+            <LandingCard interactive={false} className="p-6">
+              <Counter value={stat.value} suffix={stat.suffix} label={stat.label} />
+              <p className="mt-4 text-sm font-semibold leading-5">{stat.label}</p>
+              <p className="mt-2 text-xs leading-4 text-muted-foreground">{stat.detail}</p>
+            </LandingCard>
           </Reveal>
         ))}
       </div>

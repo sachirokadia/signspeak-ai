@@ -1,3 +1,4 @@
+import { LandingCard } from "@/components/site/LandingCard";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 
@@ -21,25 +22,28 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="border-y border-border bg-surface">
-      <div className="mx-auto max-w-6xl px-5 py-24">
+    <section className="border-y border-border bg-surface" aria-labelledby="how-it-works-heading">
+      <div className="section-container section-padding">
         <SectionHeading
+          id="how-it-works-heading"
           eyebrow="How it works"
           title="Three steps from gesture to conversation"
           description="No calibration sessions, no wearables, no waiting. Open the dashboard and start talking."
         />
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
+        <ol className="section-gap grid list-none gap-6 md:grid-cols-3">
           {steps.map((item, i) => (
-            <Reveal key={item.step} delay={i * 0.1}>
-              <div className="relative h-full rounded-2xl border border-border bg-card p-7 shadow-soft transition-transform duration-300 hover:-translate-y-1">
-                <span className="text-gradient font-display text-3xl font-semibold">{item.step}</span>
-                <h3 className="mt-4 text-lg font-semibold">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
-              </div>
+            <Reveal key={item.step} delay={i * 0.1} as="li">
+              <LandingCard className="relative h-full p-8">
+                <span className="text-gradient font-display text-3xl font-semibold leading-8" aria-hidden="true">
+                  {item.step}
+                </span>
+                <h3 className="mt-4 text-lg font-semibold leading-7">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.body}</p>
+              </LandingCard>
             </Reveal>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );
