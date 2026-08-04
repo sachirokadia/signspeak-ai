@@ -163,7 +163,7 @@ export function TranslationPanel({
             min={0.5}
             max={1.8}
             step={0.1}
-            onValueChange={([value]) => onRateChange(value)}
+            onValueChange={([value]) => onRateChange(value ?? 1)}
           />
         </div>
       </section>
