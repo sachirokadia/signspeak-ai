@@ -18,9 +18,11 @@ import {
   type CameraPermissionState,
 } from "@/hooks/useCamera";
 import { useHandTracking } from "@/hooks/useHandTracking";
+import { useGestureRecognition } from "@/hooks/useGestureRecognition";
 import { HandOverlay } from "@/components/dashboard/HandOverlay";
 import type { DebugData } from "@/components/dashboard/DebugPanel";
 import type { HandDetectionResult } from "@/services/mediapipe/handTracker";
+import type { ConfirmedGesture } from "@/services/gesture/types";
 
 /**
  * CameraCard
@@ -209,9 +211,16 @@ export interface CameraCardProps {
    * camera or tracking state.
    */
   onDebugData?: (data: DebugData) => void;
+  /**
+   * Called once per confirmed gesture (after hold + debounce conditions pass).
+   * Fired synchronously inside the rAF loop — must be non-throwing.
+   * Dashboard uses this to update history, transcript, and trigger speech.
+   * Omit to keep gesture recognition running silently in the background.
+   */
+  onGestureRecognised?: (gesture: ConfirmedGesture) => void;
 }
 
-export function CameraCard({ onCameraStateChange, onDebugData }: CameraCardProps) {
+export function CameraCard({ onCameraStateChange, onDebugData, onGestureRecognised }: CameraCardProps) {
   // ── Camera ──────────────────────────────────────────────────────────────────
   const camera = useCamera(
     onCameraStateChange !== undefined ? { onCameraStateChange } : {},
@@ -222,6 +231,17 @@ export function CameraCard({ onCameraStateChange, onDebugData }: CameraCardProps
   const isLive   = status === "live";
   const isActive = status === "live" || status === "requesting";
   const canStart = status === "idle" || status === "error";
+
+  // ── Gesture recognition ────────────────────────────────────────────────────
+  // Enabled only when the camera is live. processFrame is a stable ref-based
+  // callback (empty useCallback deps in the hook) — its identity never changes,
+  // so including it in handleFrame's dep array causes no churn.
+  const gestureRecognition = useGestureRecognition({
+    enabled: isLive,
+    ...(onGestureRecognised !== undefined && {
+      onGestureConfirmed: onGestureRecognised,
+    }),
+  });
 
   // ── Stable ref to latest cameraState ───────────────────────────────────────
   // Used inside onFrame (rAF loop) without capturing a stale closure.
@@ -246,6 +266,11 @@ export function CameraCard({ onCameraStateChange, onDebugData }: CameraCardProps
       // Update the overlay ref (HandOverlay reads this on next draw).
       overlayResultRef.current = result;
 
+      // ── Gesture recognition ──────────────────────────────────────────────
+      // Called after hand detection, before debug assembly.
+      // processFrame is a no-op when the camera is not live (enabled=false).
+      gestureRecognition.processFrame(result);
+
       // Debug data: assembled entirely inside CameraCard from owned state.
       // onDebugData is called only when the prop is provided — zero overhead
       // in production where the prop is not passed.
@@ -263,8 +288,9 @@ export function CameraCard({ onCameraStateChange, onDebugData }: CameraCardProps
         });
       }
     },
-    // onDebugData identity is the only meaningful dep; all state reads use refs.
-    [onDebugData, videoRef],
+    // gestureRecognition.processFrame is stable (empty useCallback deps in hook).
+    // onDebugData and videoRef are the other meaningful deps.
+    [gestureRecognition.processFrame, onDebugData, videoRef],
   );
 
   // ── Hand tracking ───────────────────────────────────────────────────────────

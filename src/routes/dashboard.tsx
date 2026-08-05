@@ -1,7 +1,7 @@
 "use client";
 
 import { createFileRoute } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Navbar } from "@/components/site/Navbar";
 import { CameraCard } from "@/components/dashboard/CameraCard";
@@ -11,10 +11,11 @@ import { TranscriptCard } from "@/components/dashboard/TranscriptCard";
 import { VoiceCard } from "@/components/dashboard/VoiceCard";
 import { GestureHistory } from "@/components/dashboard/GestureHistory";
 import { SessionBadge } from "@/components/dashboard/SessionBadge";
-import { GESTURE_LIBRARY, SEED_HISTORY, type HistoryEntry } from "@/lib/gestures";
+import { SEED_HISTORY, type HistoryEntry } from "@/lib/gestures";
 import { DEBUG_MODE } from "@/lib/debug";
 import type { CameraState } from "@/hooks/useCamera";
 import type { DebugData } from "@/components/dashboard/DebugPanel";
+import type { ConfirmedGesture } from "@/services/gesture/types";
 
 /*
  * DebugPanel is loaded as a lazy async chunk only in development.
@@ -67,51 +68,59 @@ function Dashboard() {
    */
   const [debugData, setDebugData] = useState<DebugData | null>(null);
 
-  /* Refs to keep simulation callbacks in sync without re-creating the interval */
+  /*
+   * Refs keep voice settings accessible inside the rAF-synchronous
+   * onGestureRecognised callback without stale closure issues.
+   */
   const autoSpeakRef = useRef(autoSpeak);
   const rateRef = useRef(rate);
   autoSpeakRef.current = autoSpeak;
   rateRef.current = rate;
 
-  /* Simulation loop — replaced by real gesture recognition in a future milestone */
-  useEffect(() => {
-    if (!active) return;
-
-    const interval = window.setInterval(() => {
-      const sample =
-        GESTURE_LIBRARY[Math.floor(Math.random() * GESTURE_LIBRARY.length)]!;
-
+  /*
+   * handleGestureRecognised
+   * Called synchronously by CameraCard when the gesture filter confirms
+   * a gesture (hold + debounce conditions met). Replaces the simulation loop.
+   *
+   * Converts ConfirmedGesture → HistoryEntry and updates the three
+   * consumer states: current gesture, history list, and transcript.
+   * Also triggers speech synthesis when auto-speak is enabled.
+   *
+   * Must be non-throwing — it runs inside the rAF hot path.
+   */
+  const handleGestureRecognised = useCallback(
+    (gesture: ConfirmedGesture) => {
       const entry: HistoryEntry = {
-        id: crypto.randomUUID(),
-        gesture: sample.gesture,
-        phrase: sample.phrase,
-        confidence: 0.84 + Math.random() * 0.15,
-        at: new Date(),
+        id:         gesture.id,
+        gesture:    gesture.gestureId,
+        phrase:     gesture.phrase,
+        confidence: gesture.confidence,
+        at:         gesture.confirmedAt,
       };
 
       setCurrent(entry);
       setEntries((prev) => [entry, ...prev].slice(0, 60));
       setTranscript((prev) =>
-        prev ? `${prev} ${sample.phrase}` : sample.phrase,
+        prev ? `${prev} ${gesture.phrase}` : gesture.phrase,
       );
 
       if (autoSpeakRef.current && "speechSynthesis" in window) {
-        const utterance = new SpeechSynthesisUtterance(sample.phrase);
+        const utterance = new SpeechSynthesisUtterance(gesture.phrase);
         utterance.rate = rateRef.current;
         window.speechSynthesis.speak(utterance);
       }
-    }, 3200);
-
-    return () => window.clearInterval(interval);
-  }, [active]);
+    },
+    // autoSpeakRef and rateRef are stable — no deps needed.
+    [],
+  );
 
   const confidence  = current ? Math.round(current.confidence * 100) : 0;
   const badgeStatus = active ? "live" : "idle";
 
   /*
    * handleCameraStateChange
-   * The only information Dashboard needs from the camera is whether to run
-   * the simulation loop. CameraCard owns everything else.
+   * The only information Dashboard needs from the camera is whether the
+   * session is active. CameraCard owns everything else.
    */
   function handleCameraStateChange(state: CameraState) {
     setActive(state.status === "live");
@@ -153,12 +162,15 @@ function Dashboard() {
             {/*
              * CameraCard owns the full pipeline:
              *   useCamera → useHandTracking → HandOverlay → DebugData
+             *            → useGestureRecognition → onGestureRecognised
              * Dashboard receives only:
-             *   - CameraState (to gate the simulation loop)
-             *   - DebugData   (only when DEBUG_MODE; passed straight to DebugPanel)
+             *   - CameraState (to track whether the session is active)
+             *   - ConfirmedGesture (via onGestureRecognised)
+             *   - DebugData (only when DEBUG_MODE; passed straight to DebugPanel)
              */}
             <CameraCard
               onCameraStateChange={handleCameraStateChange}
+              onGestureRecognised={handleGestureRecognised}
               {...(DEBUG_MODE && { onDebugData: setDebugData })}
             />
 
