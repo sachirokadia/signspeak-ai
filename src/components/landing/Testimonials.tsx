@@ -25,7 +25,7 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section className="mx-auto max-w-6xl px-5 py-24">
+    <section aria-label="Testimonials" className="mx-auto max-w-6xl px-5 py-24">
       <SectionHeading
         eyebrow="Testimonials"
         title="Voices from the people using it daily"
@@ -35,11 +35,35 @@ export function Testimonials() {
       <div className="mt-14 grid gap-5 lg:grid-cols-3">
         {testimonials.map((item, i) => (
           <Reveal key={item.name} delay={i * 0.08}>
-            <figure className="flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
-              <Quote className="h-6 w-6 text-primary/40" aria-hidden="true" />
-              <blockquote className="mt-4 flex-1 leading-relaxed text-pretty">“{item.quote}”</blockquote>
+            <figure
+              className="flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-soft
+                         transition-[transform,box-shadow,border-color] duration-300
+                         hover:-translate-y-1 hover:border-primary/30 hover:shadow-lift"
+            >
+              {/*
+               * Quote icon: opacity raised from /40 to /60 for better visual presence
+               * without competing with the quotation text.
+               */}
+              <Quote className="h-6 w-6 text-primary/60" aria-hidden="true" />
+
+              {/*
+               * Wrapping quote text in <p> inside <blockquote> is correct HTML5 —
+               * a blockquote's phrasing content should be in flow elements.
+               */}
+              <blockquote className="mt-4 flex-1">
+                <p className="leading-relaxed text-pretty">"{item.quote}"</p>
+              </blockquote>
+
               <figcaption className="mt-6 flex items-center gap-3 border-t border-border pt-5">
-                <span className="bg-brand grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-semibold text-primary-foreground">
+                {/*
+                 * Avatar: font-bold (vs semibold) strengthens legibility of the white
+                 * initial against the brand gradient, especially at the violet end.
+                 */}
+                <span
+                  className="bg-brand grid h-10 w-10 shrink-0 place-items-center rounded-full
+                             text-sm font-bold text-primary-foreground"
+                  aria-hidden="true"
+                >
                   {item.name.charAt(0)}
                 </span>
                 <span className="min-w-0">

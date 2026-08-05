@@ -22,11 +22,11 @@ const groups = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-surface">
+    <footer aria-label="Site footer" className="border-t border-border bg-surface">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-2">
           <Logo />
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
             Real-time gesture recognition that turns hand signs into text and natural speech — built for
             non-verbal communication, on any device with a camera.
           </p>
@@ -40,7 +40,7 @@ export function Footer() {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="inline-block text-sm text-muted-foreground transition-[color,transform] duration-200 hover:translate-x-0.5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm"
                   >
                     {link.label}
                   </Link>
@@ -52,7 +52,7 @@ export function Footer() {
       </div>
 
       <div className="border-t border-border">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-6 text-[0.8125rem] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} SignSpeak AI. Communication belongs to everyone.</p>
           <p>WCAG 2.2 AA · On-device inference · Privacy first</p>
         </div>

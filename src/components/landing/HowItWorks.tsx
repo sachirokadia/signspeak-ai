@@ -32,8 +32,13 @@ export function HowItWorks() {
         <div className="mt-14 grid gap-5 md:grid-cols-3">
           {steps.map((item, i) => (
             <Reveal key={item.step} delay={i * 0.1}>
-              <div className="relative h-full rounded-2xl border border-border bg-card p-7 shadow-soft transition-transform duration-300 hover:-translate-y-1">
-                <span className="text-gradient font-display text-3xl font-semibold">{item.step}</span>
+              <div
+                className="relative h-full rounded-2xl border border-border bg-card p-6 shadow-soft
+                            transition-[transform,box-shadow,border-color] duration-300
+                            hover:-translate-y-1 hover:border-primary/30 hover:shadow-lift"
+              >
+                {/* Step number — display font, gradient, slightly larger for hierarchy */}
+                <span className="text-gradient font-display text-4xl font-semibold">{item.step}</span>
                 <h3 className="mt-4 text-lg font-semibold">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
               </div>

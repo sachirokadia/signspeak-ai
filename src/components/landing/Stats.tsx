@@ -29,7 +29,14 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
   const formatted = Number.isInteger(value) ? Math.round(display) : display.toFixed(1);
 
   return (
-    <span ref={ref} className="text-gradient font-display text-4xl font-semibold sm:text-5xl">
+    // aria-live="off" prevents screen readers announcing every intermediate value.
+    // aria-label provides the final readable value immediately.
+    <span
+      ref={ref}
+      className="text-gradient font-display text-4xl font-semibold sm:text-5xl"
+      aria-live="off"
+      aria-label={`${value}${suffix}`}
+    >
       {formatted}
       {suffix}
     </span>
@@ -38,12 +45,18 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
 
 export function Stats() {
   return (
-    <section className="border-y border-border bg-surface">
+    <section aria-label="Platform statistics" className="border-y border-border bg-surface">
       <div className="mx-auto grid max-w-6xl gap-6 px-5 py-20 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, i) => (
           <Reveal key={stat.label} delay={i * 0.08}>
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+            <div
+              className="rounded-2xl border border-border bg-card p-6 shadow-soft
+                          transition-[transform,box-shadow] duration-300
+                          hover:-translate-y-0.5 hover:shadow-lift"
+            >
               <Counter value={stat.value} suffix={stat.suffix} />
+              {/* Thin separator to add visual structure between value and label */}
+              <hr className="mt-3 border-border/50" aria-hidden="true" />
               <p className="mt-3 text-sm font-semibold">{stat.label}</p>
               <p className="mt-1 text-xs text-muted-foreground">{stat.detail}</p>
             </div>

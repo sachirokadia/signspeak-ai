@@ -146,6 +146,8 @@
 
   html {
     scroll-behavior: smooth;
+    /* Prevent anchor targets from hiding beneath the sticky navbar (64px = h-16) */
+    scroll-padding-top: 4rem;
   }
 
   body {
@@ -162,10 +164,24 @@
   h4 {
     font-family: var(--font-display);
     letter-spacing: -0.025em;
+    /* Tighter line-height for display headings at large sizes */
+    line-height: 1.08;
   }
 
   ::selection {
     background: oklch(0.58 0.19 262 / 0.18);
+  }
+
+  /* Respect reduced-motion system preference globally */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -195,8 +211,11 @@
 @utility glass-panel {
   background: color-mix(in oklab, var(--card) 72%, transparent);
   backdrop-filter: blur(18px) saturate(140%);
+  /* Layered border: outer brand-tinted border + inset top highlight for light-catching glass effect */
   border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
-  box-shadow: var(--shadow-soft);
+  box-shadow:
+    var(--shadow-soft),
+    inset 0 1px 0 oklch(1 0 0 / 0.55);
 }
 
 @utility grid-backdrop {
@@ -204,5 +223,31 @@
     linear-gradient(to right, color-mix(in oklab, var(--border) 55%, transparent) 1px, transparent 1px),
     linear-gradient(to bottom, color-mix(in oklab, var(--border) 55%, transparent) 1px, transparent 1px);
   background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%);
+  /* Fade both vertically and horizontally so grid never hard-clips at viewport edges */
+  mask-image: radial-gradient(ellipse 75% 60% at 50% 0%, black, transparent 80%);
+}
+
+/* Consistent keyboard focus ring — brand colour, no layout shift */
+@utility focus-ring {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/*
+ * interactive-card
+ * Reusable hover-lift pattern used across feature, step, stat and testimonial cards.
+ * GPU-promoted via will-change; transition scoped to only animating properties
+ * so no full-style recalc fires on hover.
+ * Usage: add class="interactive-card" alongside the card's other classes.
+ */
+@utility interactive-card {
+  will-change: transform;
+  transition-property: transform, box-shadow, border-color;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+  }
 }

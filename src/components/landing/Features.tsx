@@ -46,8 +46,13 @@ export function Features() {
 
       <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {featureList.map((feature, i) => (
-          <Reveal key={feature.title} delay={i * 0.06}>
-            <article className="group h-full rounded-2xl border border-border bg-card p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
+          <Reveal key={feature.title} delay={i * 0.05}>
+            <article
+              className="group h-full rounded-2xl border border-border bg-card p-6 shadow-soft
+                         transition-[transform,box-shadow,border-color] duration-300
+                         hover:-translate-y-1 hover:border-primary/30 hover:shadow-lift"
+            >
+              {/* Icon container — colour transition only, no layout cost */}
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-accent text-accent-foreground transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                 <feature.icon className="h-5 w-5" aria-hidden="true" />
               </span>
