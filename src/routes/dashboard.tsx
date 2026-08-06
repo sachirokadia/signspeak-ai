@@ -10,6 +10,7 @@ import { ConfidenceCard } from "@/components/dashboard/ConfidenceCard";
 import { TranscriptCard } from "@/components/dashboard/TranscriptCard";
 import { VoiceCard } from "@/components/dashboard/VoiceCard";
 import { GestureHistory } from "@/components/dashboard/GestureHistory";
+import { SupportedSignsCard } from "@/components/dashboard/SupportedSignsCard";
 import { SessionBadge } from "@/components/dashboard/SessionBadge";
 import { SEED_HISTORY, type HistoryEntry } from "@/lib/gestures";
 import { DEBUG_MODE } from "@/lib/debug";
@@ -51,42 +52,37 @@ export const Route = createFileRoute("/dashboard")({
 /* ─── Dashboard ───────────────────────────────────────────────── */
 
 function Dashboard() {
-  /* Session state — driven by camera status, not MediaPipe state */
-  const [active, setActive] = useState(false);
+  /* Session state — driven by camera status */
+  const [active, setActive]   = useState(false);
   const [entries, setEntries] = useState<HistoryEntry[]>(SEED_HISTORY);
   const [current, setCurrent] = useState<HistoryEntry | null>(null);
-  const [transcript, setTranscript] = useState("");
 
   /* Voice settings */
   const [autoSpeak, setAutoSpeak] = useState(false);
-  const [rate, setRate] = useState(1);
+  const [rate, setRate]           = useState(1);
 
-  /*
-   * Debug data — populated only when DEBUG_MODE is true.
-   * CameraCard assembles this and passes it up via onDebugData.
-   * Dashboard is a transparent pipe: it never reads individual fields.
-   */
+  /* Debug data — dev only */
   const [debugData, setDebugData] = useState<DebugData | null>(null);
 
   /*
-   * Refs keep voice settings accessible inside the rAF-synchronous
-   * onGestureRecognised callback without stale closure issues.
+   * Refs for voice settings — accessible inside the rAF-synchronous callback
+   * without stale closure issues.
    */
   const autoSpeakRef = useRef(autoSpeak);
-  const rateRef = useRef(rate);
+  const rateRef      = useRef(rate);
   autoSpeakRef.current = autoSpeak;
-  rateRef.current = rate;
+  rateRef.current      = rate;
 
   /*
    * handleGestureRecognised
-   * Called synchronously by CameraCard when the gesture filter confirms
-   * a gesture (hold + debounce conditions met). Replaces the simulation loop.
+   * Called synchronously by CameraCard (via useGestureRecognition) each time
+   * the filter confirms a gesture. Works for both single-hand and two-hand
+   * sessions — called once per confirmed hand per frame.
    *
-   * Converts ConfirmedGesture → HistoryEntry and updates the three
-   * consumer states: current gesture, history list, and transcript.
-   * Also triggers speech synthesis when auto-speak is enabled.
-   *
-   * Must be non-throwing — it runs inside the rAF hot path.
+   * Deduplication: skip if the latest entry already has the same gestureId,
+   * preventing back-to-back identical entries when the user holds a pose.
+   * (The filter's debounceMs also suppresses rapid repeats, but this guard
+   * covers the UI layer separately.)
    */
   const handleGestureRecognised = useCallback(
     (gesture: ConfirmedGesture) => {
@@ -99,34 +95,35 @@ function Dashboard() {
       };
 
       setCurrent(entry);
-      setEntries((prev) => [entry, ...prev].slice(0, 60));
-      setTranscript((prev) =>
-        prev ? `${prev} ${gesture.phrase}` : gesture.phrase,
-      );
+      setEntries((prev) => {
+        // Remove consecutive duplicate gestureId (different hands can still
+        // appear back-to-back with the same ID — allow that by checking only
+        // the very first item rather than any previous occurrence).
+        const last = prev[0];
+        if (last && last.gesture === entry.gesture) {
+          // Replace the stale entry with the fresh one (higher confidence may differ).
+          return [entry, ...prev.slice(1)].slice(0, 60);
+        }
+        return [entry, ...prev].slice(0, 60);
+      });
 
       if (autoSpeakRef.current && "speechSynthesis" in window) {
         const utterance = new SpeechSynthesisUtterance(gesture.phrase);
-        utterance.rate = rateRef.current;
+        utterance.rate  = rateRef.current;
         window.speechSynthesis.speak(utterance);
       }
     },
-    // autoSpeakRef and rateRef are stable — no deps needed.
     [],
   );
 
   const confidence  = current ? Math.round(current.confidence * 100) : 0;
   const badgeStatus = active ? "live" : "idle";
 
-  /*
-   * handleCameraStateChange
-   * The only information Dashboard needs from the camera is whether the
-   * session is active. CameraCard owns everything else.
-   */
   function handleCameraStateChange(state: CameraState) {
     setActive(state.status === "live");
   }
 
-  /* Render */
+  /* ─── Render ─────────────────────────────────────────────────── */
   return (
     <div className="min-h-dvh bg-soft">
       <Navbar />
@@ -152,22 +149,13 @@ function Dashboard() {
         {/* Responsive grid */}
         <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-[1fr_1fr] xl:grid-cols-[480px_1fr]">
 
-          {/* Left column */}
+          {/* Left column: camera + history */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col gap-5"
           >
-            {/*
-             * CameraCard owns the full pipeline:
-             *   useCamera → useHandTracking → HandOverlay → DebugData
-             *            → useGestureRecognition → onGestureRecognised
-             * Dashboard receives only:
-             *   - CameraState (to track whether the session is active)
-             *   - ConfirmedGesture (via onGestureRecognised)
-             *   - DebugData (only when DEBUG_MODE; passed straight to DebugPanel)
-             */}
             <CameraCard
               onCameraStateChange={handleCameraStateChange}
               onGestureRecognised={handleGestureRecognised}
@@ -177,28 +165,34 @@ function Dashboard() {
             <GestureHistory
               entries={entries}
               height="h-72"
-              onClear={() => setEntries([])}
+              onClear={() => { setEntries([]); setCurrent(null); }}
             />
           </motion.div>
 
-          {/* Right column */}
+          {/* Right column: metrics + transcript + voice + supported signs */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col gap-5"
           >
+            {/* Gesture + confidence side by side */}
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <GestureCard current={current} />
               <ConfidenceCard confidence={confidence} />
             </div>
 
+            {/*
+             * TranscriptCard now receives the same `entries` array as
+             * GestureHistory (newest first). It renders a structured log
+             * instead of an accumulated string.
+             */}
             <TranscriptCard
-              transcript={transcript}
+              entries={entries}
               rate={rate}
               active={active}
               onToggle={setActive}
-              onClear={() => { setTranscript(""); setCurrent(null); }}
+              onClear={() => { setEntries([]); setCurrent(null); }}
             />
 
             <VoiceCard
@@ -207,10 +201,13 @@ function Dashboard() {
               rate={rate}
               onRateChange={setRate}
             />
+
+            {/* Supported signs — auto-populated from vocabulary service */}
+            <SupportedSignsCard />
           </motion.div>
         </div>
 
-        {/* Debug panel — dev only, zero production cost */}
+        {/* Debug panel — dev only */}
         {DEBUG_MODE && DebugPanelLazy !== null && debugData !== null ? (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
