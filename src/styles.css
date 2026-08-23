@@ -106,7 +106,8 @@
     oklch(0.982 0.014 290) 100%
   );
   --shadow-soft: 0 1px 2px oklch(0.4 0.05 264 / 0.05), 0 12px 32px -12px oklch(0.4 0.08 264 / 0.14);
-  --shadow-lift: 0 2px 4px oklch(0.4 0.05 264 / 0.04), 0 24px 60px -20px oklch(0.45 0.12 275 / 0.28);
+  --shadow-lift:
+    0 2px 4px oklch(0.4 0.05 264 / 0.04), 0 24px 60px -20px oklch(0.45 0.12 275 / 0.28);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -201,8 +202,16 @@
 
 @utility grid-backdrop {
   background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--border) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--border) 55%, transparent) 1px, transparent 1px);
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--border) 55%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--border) 55%, transparent) 1px,
+      transparent 1px
+    );
   background-size: 56px 56px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%);
 }

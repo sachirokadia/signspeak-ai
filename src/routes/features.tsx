@@ -34,9 +34,14 @@ function FeaturesPage() {
                 A translation engine you can <span className="text-gradient">see working</span>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-muted-foreground text-pretty">
-                Every part of SignSpeak AI is tuned for the moment between forming a sign and being heard.
+                Every part of SignSpeak AI is tuned for the moment between forming a sign and being
+                heard.
               </p>
-              <Button asChild size="lg" className="bg-brand mt-8 h-12 rounded-full px-6 shadow-soft transition-transform hover:scale-[1.02]">
+              <Button
+                asChild
+                size="lg"
+                className="bg-brand mt-8 h-12 rounded-full px-6 shadow-soft transition-transform hover:scale-[1.02]"
+              >
                 <Link to="/dashboard">Try it live</Link>
               </Button>
             </Reveal>

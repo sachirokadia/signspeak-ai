@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 
 type Status = "idle" | "starting" | "live" | "error";
 
-export function WebcamPanel({ active, onToggle }: { active: boolean; onToggle: (next: boolean) => void }) {
+export function WebcamPanel({
+  active,
+  onToggle,
+}: {
+  active: boolean;
+  onToggle: (next: boolean) => void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -44,7 +50,9 @@ export function WebcamPanel({ active, onToggle }: { active: boolean; onToggle: (
       } catch {
         if (cancelled) return;
         setStatus("error");
-        setMessage("Camera access was blocked. Enable permissions in your browser to start translating.");
+        setMessage(
+          "Camera access was blocked. Enable permissions in your browser to start translating.",
+        );
       }
     }
 
@@ -86,7 +94,11 @@ export function WebcamPanel({ active, onToggle }: { active: boolean; onToggle: (
             className={`h-11 rounded-full px-5 ${active ? "" : "bg-brand"}`}
             variant={active ? "outline" : "default"}
           >
-            {active ? <CameraOff className="mr-1.5 h-4 w-4" /> : <Camera className="mr-1.5 h-4 w-4" />}
+            {active ? (
+              <CameraOff className="mr-1.5 h-4 w-4" />
+            ) : (
+              <Camera className="mr-1.5 h-4 w-4" />
+            )}
             {active ? "Stop" : "Start camera"}
           </Button>
         </div>
@@ -108,7 +120,9 @@ export function WebcamPanel({ active, onToggle }: { active: boolean; onToggle: (
                 <ScanLine className="h-5 w-5" aria-hidden="true" />
               </span>
               <p className="mt-4 text-sm font-medium text-white">
-                {status === "error" ? message : "Turn on the camera to begin real-time translation."}
+                {status === "error"
+                  ? message
+                  : "Turn on the camera to begin real-time translation."}
               </p>
             </div>
           </div>

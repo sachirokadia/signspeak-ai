@@ -20,15 +20,20 @@ export function Mission() {
                 Accessibility isn't a feature. It's the whole product.
               </h2>
               <p className="mt-5 max-w-xl leading-relaxed text-muted-foreground text-pretty">
-                Over 70 million people worldwide use sign language as a first language, yet most everyday
-                spaces — clinics, classrooms, counters — have no interpreter. SignSpeak AI exists to close
-                that gap with technology that respects both privacy and dignity.
+                Over 70 million people worldwide use sign language as a first language, yet most
+                everyday spaces — clinics, classrooms, counters — have no interpreter. SignSpeak AI
+                exists to close that gap with technology that respects both privacy and dignity.
               </p>
               <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground text-pretty">
-                We build with the Deaf and non-verbal community, not for them: every release is tested with
-                screen readers, high-contrast modes, keyboard-only navigation and real signers.
+                We build with the Deaf and non-verbal community, not for them: every release is
+                tested with screen readers, high-contrast modes, keyboard-only navigation and real
+                signers.
               </p>
-              <Button asChild size="lg" className="bg-brand mt-8 h-12 rounded-full px-6 shadow-soft transition-transform hover:scale-[1.02]">
+              <Button
+                asChild
+                size="lg"
+                className="bg-brand mt-8 h-12 rounded-full px-6 shadow-soft transition-transform hover:scale-[1.02]"
+              >
                 <Link to="/about">Read our mission</Link>
               </Button>
             </div>

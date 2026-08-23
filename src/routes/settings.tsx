@@ -52,7 +52,17 @@ function SettingsCard({
   );
 }
 
-function Row({ label, description, control, htmlFor }: { label: string; description: string; control: React.ReactNode; htmlFor: string }) {
+function Row({
+  label,
+  description,
+  control,
+  htmlFor,
+}: {
+  label: string;
+  description: string;
+  control: React.ReactNode;
+  htmlFor: string;
+}) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
       <div className="min-w-0">
@@ -151,7 +161,9 @@ function Settings() {
                 htmlFor="auto-speak"
                 label="Speak automatically"
                 description="Play each recognised phrase as soon as it's confident."
-                control={<Switch id="auto-speak" checked={autoSpeak} onCheckedChange={setAutoSpeak} />}
+                control={
+                  <Switch id="auto-speak" checked={autoSpeak} onCheckedChange={setAutoSpeak} />
+                }
               />
               <div>
                 <div className="flex items-center justify-between">
@@ -174,34 +186,56 @@ function Settings() {
           </Reveal>
 
           <Reveal delay={0.12}>
-            <SettingsCard heading="Accessibility" hint="Make the interface fit how you read and move.">
+            <SettingsCard
+              heading="Accessibility"
+              hint="Make the interface fit how you read and move."
+            >
               <Row
                 htmlFor="large-text"
                 label="Larger text"
                 description="Increase base font size across the app."
-                control={<Switch id="large-text" checked={largeText} onCheckedChange={setLargeText} />}
+                control={
+                  <Switch id="large-text" checked={largeText} onCheckedChange={setLargeText} />
+                }
               />
               <Row
                 htmlFor="reduce-motion"
                 label="Reduce motion"
                 description="Disable non-essential animations and transitions."
-                control={<Switch id="reduce-motion" checked={reduceMotion} onCheckedChange={setReduceMotion} />}
+                control={
+                  <Switch
+                    id="reduce-motion"
+                    checked={reduceMotion}
+                    onCheckedChange={setReduceMotion}
+                  />
+                }
               />
             </SettingsCard>
           </Reveal>
 
           <Reveal delay={0.18}>
-            <SettingsCard heading="Privacy & data" hint="Nothing is uploaded. You control what is kept.">
+            <SettingsCard
+              heading="Privacy & data"
+              hint="Nothing is uploaded. You control what is kept."
+            >
               <Row
                 htmlFor="save-history"
                 label="Save gesture history"
                 description="Store translated phrases locally on this device."
-                control={<Switch id="save-history" checked={saveHistory} onCheckedChange={setSaveHistory} />}
+                control={
+                  <Switch
+                    id="save-history"
+                    checked={saveHistory}
+                    onCheckedChange={setSaveHistory}
+                  />
+                }
               />
               <Button
                 variant="outline"
                 className="h-11 rounded-full px-5"
-                onClick={() => toast("History cleared", { description: "All stored phrases were removed." })}
+                onClick={() =>
+                  toast("History cleared", { description: "All stored phrases were removed." })
+                }
               >
                 Clear stored history
               </Button>

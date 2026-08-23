@@ -27,8 +27,8 @@ export function Footer() {
         <div className="lg:col-span-2">
           <Logo />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Real-time gesture recognition that turns hand signs into text and natural speech — built for
-            non-verbal communication, on any device with a camera.
+            Real-time gesture recognition that turns hand signs into text and natural speech — built
+            for non-verbal communication, on any device with a camera.
           </p>
         </div>
 

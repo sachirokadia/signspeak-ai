@@ -37,7 +37,9 @@ export function Testimonials() {
           <Reveal key={item.name} delay={i * 0.08}>
             <figure className="flex h-full flex-col rounded-2xl border border-border bg-card p-7 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
               <Quote className="h-6 w-6 text-primary/40" aria-hidden="true" />
-              <blockquote className="mt-4 flex-1 leading-relaxed text-pretty">“{item.quote}”</blockquote>
+              <blockquote className="mt-4 flex-1 leading-relaxed text-pretty">
+                “{item.quote}”
+              </blockquote>
               <figcaption className="mt-6 flex items-center gap-3 border-t border-border pt-5">
                 <span className="bg-brand grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-semibold text-primary-foreground">
                   {item.name.charAt(0)}

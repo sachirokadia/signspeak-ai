@@ -33,7 +33,9 @@ export function HowItWorks() {
           {steps.map((item, i) => (
             <Reveal key={item.step} delay={i * 0.1}>
               <div className="relative h-full rounded-2xl border border-border bg-card p-7 shadow-soft transition-transform duration-300 hover:-translate-y-1">
-                <span className="text-gradient font-display text-3xl font-semibold">{item.step}</span>
+                <span className="text-gradient font-display text-3xl font-semibold">
+                  {item.step}
+                </span>
                 <h3 className="mt-4 text-lg font-semibold">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
               </div>

@@ -38,8 +38,8 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
             className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground text-pretty"
           >
-            SignSpeak AI reads hand signs through your webcam and converts them into written words and
-            natural speech — instantly, privately, and with confidence you can see.
+            SignSpeak AI reads hand signs through your webcam and converts them into written words
+            and natural speech — instantly, privately, and with confidence you can see.
           </motion.p>
 
           <motion.div
@@ -48,13 +48,22 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
             className="mt-9 flex flex-wrap items-center gap-3"
           >
-            <Button asChild size="lg" className="bg-brand h-12 rounded-full px-6 text-[15px] shadow-lift transition-transform hover:scale-[1.02]">
+            <Button
+              asChild
+              size="lg"
+              className="bg-brand h-12 rounded-full px-6 text-[15px] shadow-lift transition-transform hover:scale-[1.02]"
+            >
               <Link to="/dashboard">
                 Start translating
                 <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="h-12 rounded-full border-border bg-background/70 px-6 text-[15px] backdrop-blur">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-12 rounded-full border-border bg-background/70 px-6 text-[15px] backdrop-blur"
+            >
               <Link to="/features">See how it works</Link>
             </Button>
           </motion.div>

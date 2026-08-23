@@ -2,9 +2,22 @@ import { Link } from "@tanstack/react-router";
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <Link to="/" className={`group flex items-center gap-2.5 ${className}`} aria-label="SignSpeak AI home">
+    <Link
+      to="/"
+      className={`group flex items-center gap-2.5 ${className}`}
+      aria-label="SignSpeak AI home"
+    >
       <span className="bg-brand relative grid h-9 w-9 place-items-center rounded-xl shadow-soft transition-transform duration-300 group-hover:scale-105">
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="white" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          className="h-5 w-5"
+          fill="none"
+          stroke="white"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           <path d="M7 11V5.5a1.5 1.5 0 0 1 3 0V11" />
           <path d="M10 10.5V4.5a1.5 1.5 0 0 1 3 0V11" />
           <path d="M13 10.5V6a1.5 1.5 0 0 1 3 0v6" />

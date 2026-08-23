@@ -39,7 +39,9 @@ export function TranslationPanel({
       return;
     }
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      toast("Speech output unavailable", { description: "This browser doesn't support speech synthesis." });
+      toast("Speech output unavailable", {
+        description: "This browser doesn't support speech synthesis.",
+      });
       return;
     }
     const utterance = new SpeechSynthesisUtterance(transcript);
@@ -54,7 +56,9 @@ export function TranslationPanel({
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <div className="min-w-0">
             <h2 className="truncate text-sm font-semibold">Live translation</h2>
-            <p className="truncate text-xs text-muted-foreground">Updates as each sign is recognised</p>
+            <p className="truncate text-xs text-muted-foreground">
+              Updates as each sign is recognised
+            </p>
           </div>
           <Button
             variant="outline"
@@ -62,7 +66,11 @@ export function TranslationPanel({
             className="shrink-0 rounded-full"
             onClick={() => onToggle(!active)}
           >
-            {active ? <Pause className="mr-1.5 h-3.5 w-3.5" /> : <Play className="mr-1.5 h-3.5 w-3.5" />}
+            {active ? (
+              <Pause className="mr-1.5 h-3.5 w-3.5" />
+            ) : (
+              <Play className="mr-1.5 h-3.5 w-3.5" />
+            )}
             {active ? "Pause" : "Resume"}
           </Button>
         </div>
@@ -72,7 +80,9 @@ export function TranslationPanel({
           className="mt-5 min-h-32 rounded-2xl border border-border bg-background/70 p-5"
         >
           <p className="font-display text-xl leading-relaxed font-medium text-pretty">
-            {transcript || <span className="text-muted-foreground">Waiting for your first gesture…</span>}
+            {transcript || (
+              <span className="text-muted-foreground">Waiting for your first gesture…</span>
+            )}
           </p>
         </div>
 

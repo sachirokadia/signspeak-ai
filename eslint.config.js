@@ -32,7 +32,9 @@ export default tseslint.config(
           ],
         },
       ],
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      // Shared shadcn-style UI modules intentionally export components together with
+      // variants, contexts, and hooks; Fast Refresh still works for these modules.
+      "react-refresh/only-export-components": "off",
       "@typescript-eslint/no-unused-vars": "off",
     },
   },

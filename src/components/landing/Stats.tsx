@@ -5,10 +5,20 @@ import { useEffect, useRef, useState } from "react";
 import { Reveal } from "@/components/site/Reveal";
 
 const stats = [
-  { value: 98.4, suffix: "%", label: "Recognition accuracy", detail: "On the core 250-sign vocabulary" },
+  {
+    value: 98.4,
+    suffix: "%",
+    label: "Recognition accuracy",
+    detail: "On the core 250-sign vocabulary",
+  },
   { value: 42, suffix: "ms", label: "Median latency", detail: "Gesture to rendered text" },
   { value: 250, suffix: "+", label: "Supported gestures", detail: "ASL, BSL and custom packs" },
-  { value: 12, suffix: "k", label: "Daily conversations", detail: "Translated across 34 countries" },
+  {
+    value: 12,
+    suffix: "k",
+    label: "Daily conversations",
+    detail: "Translated across 34 countries",
+  },
 ];
 
 function Counter({ value, suffix }: { value: number; suffix: string }) {

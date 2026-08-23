@@ -22,10 +22,22 @@ export const Route = createFileRoute("/about")({
 });
 
 const values = [
-  ["Dignity first", "A translation tool should never make someone feel like a subject of study. Every interaction is designed to be quiet, quick and ordinary."],
-  ["Nothing leaves the device", "Camera frames are processed locally and discarded. History is stored on the device and can be wiped in one tap."],
-  ["Transparent by default", "Confidence scores, model versions and detected gestures are always visible — no black box speaking on your behalf."],
-  ["Built with, not for", "Deaf advocates, interpreters and speech therapists review every release before it ships."],
+  [
+    "Dignity first",
+    "A translation tool should never make someone feel like a subject of study. Every interaction is designed to be quiet, quick and ordinary.",
+  ],
+  [
+    "Nothing leaves the device",
+    "Camera frames are processed locally and discarded. History is stored on the device and can be wiped in one tap.",
+  ],
+  [
+    "Transparent by default",
+    "Confidence scores, model versions and detected gestures are always visible — no black box speaking on your behalf.",
+  ],
+  [
+    "Built with, not for",
+    "Deaf advocates, interpreters and speech therapists review every release before it ships.",
+  ],
 ];
 
 function About() {
@@ -37,12 +49,13 @@ function About() {
           <div className="mx-auto max-w-3xl px-5 py-20 text-center">
             <Reveal>
               <h1 className="text-4xl font-semibold text-balance sm:text-5xl">
-                We're building the shortest path between <span className="text-gradient">a gesture and being understood</span>.
+                We're building the shortest path between{" "}
+                <span className="text-gradient">a gesture and being understood</span>.
               </h1>
               <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-muted-foreground text-pretty">
-                SignSpeak AI began in a hospital waiting room, where a 40-minute wait for an interpreter meant a
-                patient couldn't describe their own pain. We thought the phone already in their pocket should be
-                enough. Three years later, it is.
+                SignSpeak AI began in a hospital waiting room, where a 40-minute wait for an
+                interpreter meant a patient couldn't describe their own pain. We thought the phone
+                already in their pocket should be enough. Three years later, it is.
               </p>
             </Reveal>
           </div>
@@ -69,7 +82,11 @@ function About() {
               <p className="mt-3 text-muted-foreground">
                 The dashboard works right now, in this browser, without an account.
               </p>
-              <Button asChild size="lg" className="bg-brand mt-8 h-12 rounded-full px-6 shadow-soft transition-transform hover:scale-[1.02]">
+              <Button
+                asChild
+                size="lg"
+                className="bg-brand mt-8 h-12 rounded-full px-6 shadow-soft transition-transform hover:scale-[1.02]"
+              >
                 <Link to="/dashboard">Open the dashboard</Link>
               </Button>
             </Reveal>

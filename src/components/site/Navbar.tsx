@@ -36,13 +36,22 @@ export function Navbar() {
         </div>
 
         <div className="ml-auto flex items-center gap-2 lg:ml-2">
-          <Button asChild size="sm" className="bg-brand rounded-full px-4 shadow-soft transition-transform hover:scale-[1.03]">
+          <Button
+            asChild
+            size="sm"
+            className="bg-brand rounded-full px-4 shadow-soft transition-transform hover:scale-[1.03]"
+          >
             <Link to="/dashboard">Launch app</Link>
           </Button>
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open menu" className="min-h-11 min-w-11 lg:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Open menu"
+                className="min-h-11 min-w-11 lg:hidden"
+              >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>

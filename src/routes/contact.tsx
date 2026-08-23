@@ -47,8 +47,8 @@ function Contact() {
               Let's make your space <span className="text-gradient">accessible</span>
             </h1>
             <p className="mt-5 leading-relaxed text-muted-foreground text-pretty">
-              Whether you run a clinic, a classroom or a service desk, we'll help you deploy SignSpeak AI and
-              train custom gestures for your context.
+              Whether you run a clinic, a classroom or a service desk, we'll help you deploy
+              SignSpeak AI and train custom gestures for your context.
             </p>
 
             <ul className="mt-10 space-y-4">
@@ -82,22 +82,51 @@ function Contact() {
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="name">Name</Label>
-                  <Input id="name" name="name" required className="mt-2 h-11" placeholder="Alex Moreau" />
+                  <Input
+                    id="name"
+                    name="name"
+                    required
+                    className="mt-2 h-11"
+                    placeholder="Alex Moreau"
+                  />
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required className="mt-2 h-11" placeholder="alex@clinic.org" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="mt-2 h-11"
+                    placeholder="alex@clinic.org"
+                  />
                 </div>
               </div>
               <div className="mt-5">
                 <Label htmlFor="organisation">Organisation</Label>
-                <Input id="organisation" name="organisation" className="mt-2 h-11" placeholder="Riverside Community Clinic" />
+                <Input
+                  id="organisation"
+                  name="organisation"
+                  className="mt-2 h-11"
+                  placeholder="Riverside Community Clinic"
+                />
               </div>
               <div className="mt-5">
                 <Label htmlFor="message">How can we help?</Label>
-                <Textarea id="message" name="message" required rows={5} className="mt-2" placeholder="Tell us about your setting and the people you support…" />
+                <Textarea
+                  id="message"
+                  name="message"
+                  required
+                  rows={5}
+                  className="mt-2"
+                  placeholder="Tell us about your setting and the people you support…"
+                />
               </div>
-              <Button type="submit" disabled={sending} className="bg-brand mt-6 h-12 w-full rounded-full text-[15px]">
+              <Button
+                type="submit"
+                disabled={sending}
+                className="bg-brand mt-6 h-12 w-full rounded-full text-[15px]"
+              >
                 {sending ? "Sending…" : "Send message"}
               </Button>
               <p className="mt-4 text-center text-xs text-muted-foreground">
