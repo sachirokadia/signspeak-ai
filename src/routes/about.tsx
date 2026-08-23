@@ -28,7 +28,7 @@ const values = [
   ["Built with, not for", "Deaf advocates, interpreters and speech therapists review every release before it ships."],
 ];
 
-export function About() {
+function About() {
   return (
     <div className="min-h-dvh">
       <Navbar />
