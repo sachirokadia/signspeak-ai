@@ -4,15 +4,18 @@
  * HandTracker — singleton wrapper around MediaPipe's HandLandmarker
  * (Tasks Vision, VIDEO running mode, WASM delegate).
  *
- * Everything runs on-device. By default the WASM runtime and model load from
- * CDN on first use; set VITE_MEDIAPIPE_WASM_URL / VITE_HAND_LANDMARKER_MODEL_URL
- * (or call configureHandTracker) to self-host them — required for the
- * strictest privacy posture and the offline PWA.
+ * Everything runs on-device. The WASM runtime is self-hosted: a postinstall
+ * script copies it from node_modules/@mediapipe/tasks-vision into
+ * public/wasm/, so it is always version-matched with the installed JS,
+ * served same-origin (no CDN MIME/availability hazards), and cacheable by
+ * the service worker for offline use. The hand-landmarker model still loads
+ * from Google's CDN on first use; set VITE_HAND_LANDMARKER_MODEL_URL
+ * (or call configureHandTracker) to self-host it as well.
  */
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import type { Vec3 } from "./types";
 
-const DEFAULT_WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm";
+const DEFAULT_WASM_URL = "/wasm";
 const DEFAULT_MODEL_URL =
   "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
 

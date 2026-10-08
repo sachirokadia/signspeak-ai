@@ -2,15 +2,16 @@
  * SignSpeak AI service worker — hand-written, no build magic.
  *
  * Two jobs:
- *  1. Cache the MediaPipe WASM runtime + hand-landmarker model (large,
- *     versioned CDN assets) with a cache-first strategy so the gesture
- *     pipeline works offline after the first visit.
+ *  1. Cache the MediaPipe WASM runtime (self-hosted under /wasm/, copied
+ *     from node_modules at install time) and the hand-landmarker model
+ *     (Google CDN) with a cache-first strategy so the gesture pipeline
+ *     works offline after the first visit.
  *  2. Best-effort app-shell caching for navigations while offline.
  *
  * No analytics, no push, no background sync — the worker never exfiltrates.
  */
-const APP_CACHE = "signspeak-app-v1";
-const MODEL_CACHE = "signspeak-models-v1";
+const APP_CACHE = "signspeak-app-v2";
+const MODEL_CACHE = "signspeak-models-v2";
 const APP_SHELL = ["/", "/dashboard", "/privacy", "/manifest.webmanifest"];
 
 const MODEL_ORIGINS = new Set(["https://cdn.jsdelivr.net", "https://storage.googleapis.com"]);
@@ -41,8 +42,12 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
 
-  // Hand-tracking model + WASM: cache-first (immutable, versioned URLs).
-  if (MODEL_ORIGINS.has(url.origin)) {
+  // Self-hosted MediaPipe WASM + hand-tracking model: cache-first
+  // (immutable per installed version).
+  const isModelOrigin = MODEL_ORIGINS.has(url.origin);
+  const isLocalWasm =
+    url.origin === self.location.origin && url.pathname.startsWith("/wasm/");
+  if (isModelOrigin || isLocalWasm) {
     event.respondWith(
       caches.open(MODEL_CACHE).then((cache) =>
         cache.match(event.request).then(
