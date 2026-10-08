@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { ClientOnly } from "@/components/a11y/ClientOnly";
 
 function NotFoundComponent() {
   return (
@@ -132,9 +133,24 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <Toaster position="bottom-right" />
+      {/*
+       * The app is entirely browser-dependent (camera, WebRTC, IndexedDB,
+       * Web Speech, MediaPipe). Server-rendering the route tree provides no
+       * value and the Vercel server build cannot complete its Suspense
+       * boundaries (React #419); render client-only with a lightweight
+       * placeholder so server and client output stay identical.
+       */}
+      <ClientOnly
+        fallback={
+          <div className="flex min-h-dvh items-center justify-center bg-soft">
+            <p className="text-sm text-muted-foreground">Loading SignSpeak AI…</p>
+          </div>
+        }
+      >
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster position="bottom-right" />
+      </ClientOnly>
     </QueryClientProvider>
   );
 }

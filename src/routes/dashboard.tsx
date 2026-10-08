@@ -3,7 +3,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
-import { ClientOnly } from "@/components/a11y/ClientOnly";
 import { SkipLink } from "@/components/a11y/SkipLink";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { WebcamPanel } from "@/components/dashboard/WebcamPanel";
@@ -42,29 +41,8 @@ export const Route = createFileRoute("/dashboard")({
       { property: "og:description", content: description },
     ],
   }),
-  component: DashboardPage,
+  component: Dashboard,
 });
-
-/**
- * The dashboard is entirely browser-dependent (camera, WebRTC, IndexedDB,
- * Web Speech). It renders client-only: the server emits a lightweight
- * placeholder, avoiding SSR of the browser-only module graph entirely.
- */
-function DashboardPage() {
-  return (
-    <ClientOnly
-      fallback={
-        <div className="min-h-dvh bg-soft">
-          <main className="mx-auto max-w-7xl px-5 py-10">
-            <p className="text-sm text-muted-foreground">Loading dashboard…</p>
-          </main>
-        </div>
-      }
-    >
-      <Dashboard />
-    </ClientOnly>
-  );
-}
 
 const NAV_LINKS = [
   { to: "/studio", label: "Gesture Studio" },
