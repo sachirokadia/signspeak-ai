@@ -1,5 +1,7 @@
 # SignSpeak AI
 
+**Live demo:** https://signspeak-ai-sachirokadia23-3354s-projects.vercel.app
+
 An AI-powered accessibility platform that helps non-verbal users communicate
 using hand gestures. The app detects gestures through the webcam and converts
 them into text and speech in real time — with all inference running
@@ -46,7 +48,36 @@ Open the dashboard, allow camera access, and hold a gesture steady in frame.
 | `npm run dev`    | Start dev server          |
 | `npm run build`  | Production build          |
 | `npm run lint`   | ESLint                    |
+| `npm test`       | Vitest unit suite (40 tests) |
 | `npx tsc --noEmit` | Type check              |
+
+## Testing
+
+`npm test` runs 40 Vitest unit tests over the vision pipeline
+(`src/lib/vision/__tests__/`):
+
+- **Landmarks** — finger-state analysis, scale/translation invariance of the
+  63-dim feature vector, pinch-distance geometry
+- **Classifier** — all six built-in gesture templates, plus null and
+  no-match edge cases
+- **Decision engine** — stability voting, confidence gating, cooldown and
+  reset behaviour (the anti-jitter core)
+- **k-NN trainer** — cluster prediction, similarity-weighted voting and the
+  confidence mapping
+
+## Performance
+
+Design budgets (from the build plan) and status:
+
+| Metric | Budget | Status |
+| ------ | ------ | ------ |
+| Inference latency | < 50 ms/frame | Target — instrumented via the in-app HUD |
+| Tracking rate | ≥ 30 fps desktop | Target — HUD rolling average, 100-frame window |
+| Gesture-to-speech | < 2 s incl. 600 ms hold | Target — the hold is deliberate, not lag |
+| False-speech rate | 0 utterances < 0.80 confidence / 5 min | Enforced by the decision engine; unit-tested |
+
+These are engineering targets with live HUD instrumentation, not lab
+measurements — on-device numbers will be published after the device pass.
 
 ## Project structure
 
