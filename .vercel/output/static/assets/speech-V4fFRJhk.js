@@ -1,1 +1,0 @@
-function e(){return typeof window<`u`&&`speechSynthesis`in window}function t(t,n={}){if(!e())return;window.speechSynthesis.cancel();let r=new SpeechSynthesisUtterance(t);if(r.rate=n.rate??1,r.pitch=n.pitch??1,n.lang&&(r.lang=n.lang),n.voiceURI){let e=window.speechSynthesis.getVoices().find(e=>e.voiceURI===n.voiceURI);e&&(r.voice=e)}window.speechSynthesis.speak(r)}export{t};

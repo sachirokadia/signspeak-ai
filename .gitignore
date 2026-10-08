@@ -33,3 +33,6 @@ dist-ssr
 
 # MediaPipe WASM runtime (copied from node_modules by postinstall)
 public/wasm/
+
+# Vercel build output (regenerated on deploy)
+.vercel/
