@@ -1,0 +1,1 @@
+var e=`signspeak-history-v1`;function t(){try{let t=localStorage.getItem(e);return t?JSON.parse(t).map(e=>({...e,at:new Date(e.at)})):[]}catch{return[]}}function n(t){try{let n=t.slice(0,200).map(e=>({...e,at:e.at instanceof Date?e.at.toISOString():new Date(e.at).toISOString()}));localStorage.setItem(e,JSON.stringify(n))}catch{}}export{n,t};
