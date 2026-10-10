@@ -51,7 +51,14 @@ export function useCamera(active: boolean) {
         const video = videoRef.current;
         if (video) {
           video.srcObject = stream;
-          await video.play().catch(() => {});
+          // Play with one retry — some browsers drop the user-gesture
+          // context across the getUserMedia await, rejecting the first play().
+          try {
+            await video.play();
+          } catch {
+            await new Promise((r) => setTimeout(r, 250));
+            await video.play().catch(() => {});
+          }
           // Wait until dimensions are known so tracking never starts blind.
           if (video.readyState < 2 || video.videoWidth === 0) {
             await new Promise<void>((resolve) => {
