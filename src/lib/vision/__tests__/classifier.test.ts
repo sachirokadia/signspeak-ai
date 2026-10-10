@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { GESTURE_DEFINITIONS, classifyLandmarks, getGestureDefinition } from "../classifier";
-import { FIST, OK_SIGN, OPEN_PALM, PEACE, POINT, THUMBS_UP, makeHand } from "./fixtures";
+import {
+  CALL_ME,
+  FIST,
+  FOUR,
+  I_LOVE_YOU,
+  OK_SIGN,
+  OPEN_PALM,
+  PEACE,
+  POINT,
+  THUMBS_UP,
+  THREE,
+  makeHand,
+} from "./fixtures";
 
 describe("classifyLandmarks", () => {
   it.each([
@@ -10,6 +22,10 @@ describe("classifyLandmarks", () => {
     ["peace", PEACE()],
     ["point", POINT()],
     ["ok-sign", OK_SIGN()],
+    ["i-love-you", I_LOVE_YOU()],
+    ["call-me", CALL_ME()],
+    ["three", THREE()],
+    ["four", FOUR()],
   ] as const)("recognises %s", (id, lm) => {
     const pred = classifyLandmarks(lm);
     expect(pred).not.toBeNull();
@@ -56,7 +72,20 @@ describe("classifyLandmarks", () => {
 describe("gesture definitions", () => {
   it("covers every GestureId with a phrase", () => {
     const ids = GESTURE_DEFINITIONS.map((g) => g.id).sort();
-    expect(ids).toEqual(["fist", "ok-sign", "open-palm", "peace", "point", "thumbs-up"].sort());
+    expect(ids).toEqual(
+      [
+        "fist",
+        "ok-sign",
+        "open-palm",
+        "peace",
+        "point",
+        "thumbs-up",
+        "i-love-you",
+        "call-me",
+        "three",
+        "four",
+      ].sort(),
+    );
     for (const g of GESTURE_DEFINITIONS) {
       expect(g.phrase.length).toBeGreaterThan(0);
     }

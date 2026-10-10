@@ -12,7 +12,17 @@ export type FingerName = "thumb" | "index" | "middle" | "ring" | "pinky";
 /** True = extended, false = folded. */
 export type FingerStates = Record<FingerName, boolean>;
 
-export type GestureId = "open-palm" | "fist" | "thumbs-up" | "peace" | "point" | "ok-sign";
+export type GestureId =
+  | "open-palm"
+  | "fist"
+  | "thumbs-up"
+  | "peace"
+  | "point"
+  | "ok-sign"
+  | "i-love-you"
+  | "call-me"
+  | "three"
+  | "four";
 
 export type GestureDefinition = {
   /** Built-ins use the GestureId union; custom gestures use `custom-<label>`. */

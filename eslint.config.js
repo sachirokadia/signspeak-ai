@@ -6,7 +6,11 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi"] },
+  // Generated/build artifacts: never lint these. public/wasm is populated by
+  // the postinstall script (minified MediaPipe loaders) before `npm run lint`
+  // runs in CI — scanning it hangs the lint step and fails the workflow.
+  // .vercel is local-only build output with the same problem.
+  { ignores: ["dist", ".output", ".vinxi", ".vercel", "public/wasm"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

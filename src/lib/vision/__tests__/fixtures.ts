@@ -121,3 +121,39 @@ export const OK_SIGN = (): Vec3[] =>
     pinky: "extended",
     thumbTip: v(0.35, 0.55),
   });
+
+export const I_LOVE_YOU = (): Vec3[] =>
+  makeHand({
+    thumb: "extended",
+    index: "extended",
+    middle: "folded",
+    ring: "folded",
+    pinky: "extended",
+  });
+
+export const CALL_ME = (): Vec3[] =>
+  makeHand({
+    thumb: "extended",
+    index: "folded",
+    middle: "folded",
+    ring: "folded",
+    pinky: "extended",
+  });
+
+export const THREE = (): Vec3[] =>
+  makeHand({
+    thumb: "extended",
+    index: "extended",
+    middle: "extended",
+    ring: "folded",
+    pinky: "folded",
+  });
+
+export const FOUR = (): Vec3[] =>
+  makeHand({
+    thumb: "folded",
+    index: "extended",
+    middle: "extended",
+    ring: "extended",
+    pinky: "extended",
+  });

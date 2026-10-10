@@ -29,6 +29,9 @@ export const PHRASES: Record<AppLang, Record<string, string>> = {
     call: "Please call someone",
     repeat: "Can you repeat that?",
     goodbye: "Goodbye",
+    "i-love-you": "I love you",
+    three: "Three",
+    four: "Four",
   },
   hi: {
     hello: "नमस्ते",
@@ -41,6 +44,9 @@ export const PHRASES: Record<AppLang, Record<string, string>> = {
     call: "कृपया किसी को बुलाइए",
     repeat: "क्या आप दोहरा सकते हैं?",
     goodbye: "अलविदा",
+    "i-love-you": "मैं तुमसे प्यार करता हूँ",
+    three: "तीन",
+    four: "चार",
   },
 };
 
