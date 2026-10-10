@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handTracker } from "@/lib/vision/handTracker";
 import { classifyLandmarks, neuralToPrediction } from "@/lib/vision/classifier";
+import { classifyWithCustomModel, preloadCustomModel } from "@/lib/vision/customModel";
 import { GestureDecisionEngine } from "@/lib/vision/decisionEngine";
 import type { PipelineMetrics, RawPrediction, StableGesture, Vec3 } from "@/lib/vision/types";
 
@@ -70,6 +71,13 @@ export function useGesturePipeline(
     let windowStart = performance.now();
     let latencyEma = 0;
     let slowWindows = 0;
+    // Latest async ONNX prediction (updated in background, read synchronously).
+    let customPred: RawPrediction | null = null;
+    let customBusy = false;
+    let frameCount = 0;
+
+    // Preload our custom ONNX model in the background.
+    preloadCustomModel();
     let degraded = false;
 
     setMetrics((m) => ({
@@ -92,19 +100,37 @@ export function useGesturePipeline(
       const result = handTracker.detect(video!);
       // Count every frame for FPS, not just frames with detections.
       frames += 1;
+      if (!result) {
+        // No hand: clear the cached custom prediction to avoid stale results.
+        customPred = null;
+      }
       if (result) {
         latencyEma =
           latencyEma === 0 ? result.inferenceMs : latencyEma * 0.8 + result.inferenceMs * 0.2;
 
         const currentOpts = optsRef.current;
-        // Primary: MediaPipe's trained neural net. Fallback: geometric rules
-        // for gestures the net doesn't know (OK sign, Three, Four, Call Me).
+        // Primary: MediaPipe's trained neural net.
         const neuralPred =
           result.neural && result.neural.name !== "None"
             ? neuralToPrediction(result.neural.name, result.neural.score)
             : null;
+
+        // Secondary: our custom ONNX model (async, cached). Run every 3rd
+        // frame to avoid overloading; the cached result is used synchronously.
+        frameCount++;
+        if (!neuralPred && !customBusy && frameCount % 3 === 0) {
+          customBusy = true;
+          const lmCopy = result.landmarks;
+          void classifyWithCustomModel(lmCopy).then((p) => {
+            customPred = p;
+            customBusy = false;
+          });
+        }
+
+        // Tertiary: geometric rules for gestures neither net knows.
         const pred =
           neuralPred ??
+          customPred ??
           classifyLandmarks(result.landmarks) ??
           currentOpts.customPredict?.(result.landmarks) ??
           null;

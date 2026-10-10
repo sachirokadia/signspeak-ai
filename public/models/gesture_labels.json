@@ -1,0 +1,29 @@
+{
+  "labels": [
+    "call-me",
+    "thumbs-down",
+    "fist",
+    "four",
+    "thumbs-up",
+    "ok-sign",
+    "point",
+    "open-palm",
+    "peace",
+    "rock-on",
+    "three"
+  ],
+  "hagrid_classes": [
+    "call",
+    "dislike",
+    "fist",
+    "four",
+    "like",
+    "ok",
+    "one",
+    "palm",
+    "peace",
+    "rock",
+    "three"
+  ],
+  "note": "ONNX output index i -> labels[i] (app gesture id)"
+}
