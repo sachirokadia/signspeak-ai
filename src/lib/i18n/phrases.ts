@@ -21,6 +21,7 @@ export const PHRASES: Record<AppLang, Record<string, string>> = {
   en: {
     hello: "Hello",
     yes: "Yes",
+    no: "No",
     "im-okay": "I'm okay",
     water: "Water, please",
     "that-one": "That one",
@@ -32,10 +33,14 @@ export const PHRASES: Record<AppLang, Record<string, string>> = {
     "i-love-you": "I love you",
     three: "Three",
     four: "Four",
+    "rock-on": "Rock on",
+    vulcan: "Live long and prosper",
+    pinch: "A little",
   },
   hi: {
     hello: "नमस्ते",
     yes: "हाँ",
+    no: "नहीं",
     "im-okay": "मैं ठीक हूँ",
     water: "पानी चाहिए",
     "that-one": "वह वाला",
@@ -47,6 +52,9 @@ export const PHRASES: Record<AppLang, Record<string, string>> = {
     "i-love-you": "मैं तुमसे प्यार करता हूँ",
     three: "तीन",
     four: "चार",
+    "rock-on": "रॉक ऑन",
+    vulcan: "दीर्घायु और समृद्धि",
+    pinch: "थोड़ा",
   },
 };
 

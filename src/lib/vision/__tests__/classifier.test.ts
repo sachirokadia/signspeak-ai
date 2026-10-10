@@ -14,6 +14,7 @@ import {
   OPEN_PALM,
   PEACE,
   POINT,
+  ROCK_ON,
   THUMBS_UP,
   THREE,
   makeHand,
@@ -31,6 +32,7 @@ describe("classifyLandmarks", () => {
     ["call-me", CALL_ME()],
     ["three", THREE()],
     ["four", FOUR()],
+    ["rock-on", ROCK_ON()],
   ] as const)("recognises %s", (id, lm) => {
     const pred = classifyLandmarks(lm);
     expect(pred).not.toBeNull();
@@ -85,10 +87,14 @@ describe("gesture definitions", () => {
         "peace",
         "point",
         "thumbs-up",
+        "thumbs-down",
         "i-love-you",
         "call-me",
         "three",
         "four",
+        "rock-on",
+        "vulcan",
+        "pinch",
       ].sort(),
     );
     for (const g of GESTURE_DEFINITIONS) {
@@ -109,6 +115,7 @@ describe("neuralToPrediction", () => {
       ["Open_Palm", "open-palm"],
       ["Pointing_Up", "point"],
       ["Thumb_Up", "thumbs-up"],
+      ["Thumb_Down", "thumbs-down"],
       ["Victory", "peace"],
       ["ILoveYou", "i-love-you"],
     ] as const;
@@ -120,9 +127,8 @@ describe("neuralToPrediction", () => {
     }
   });
 
-  it("returns null for None, Thumb_Down, and low scores", () => {
+  it("returns null for None and low scores", () => {
     expect(neuralToPrediction("None", 0.9)).toBeNull();
-    expect(neuralToPrediction("Thumb_Down", 0.9)).toBeNull();
     expect(neuralToPrediction("Open_Palm", 0.3)).toBeNull();
   });
 });

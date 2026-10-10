@@ -17,13 +17,17 @@ export type GestureId =
   | "open-palm"
   | "fist"
   | "thumbs-up"
+  | "thumbs-down"
   | "peace"
   | "point"
   | "ok-sign"
   | "i-love-you"
   | "call-me"
   | "three"
-  | "four";
+  | "four"
+  | "rock-on"
+  | "vulcan"
+  | "pinch";
 
 /** MediaPipe GestureRecognizer's canned gesture categories. */
 export type MediaPipeGestureName =

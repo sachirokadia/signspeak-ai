@@ -157,3 +157,12 @@ export const FOUR = (): Vec3[] =>
     ring: "extended",
     pinky: "extended",
   });
+
+export const ROCK_ON = (): Vec3[] =>
+  makeHand({
+    thumb: "folded",
+    index: "extended",
+    middle: "folded",
+    ring: "folded",
+    pinky: "extended",
+  });

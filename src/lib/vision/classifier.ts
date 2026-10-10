@@ -20,6 +20,7 @@ export const GESTURE_DEFINITIONS: GestureDefinition[] = [
   { id: "open-palm", label: "Open Palm", phraseKey: "hello", phrase: "Hello" },
   { id: "fist", label: "Fist", phraseKey: "yes", phrase: "Yes" },
   { id: "thumbs-up", label: "Thumbs Up", phraseKey: "im-okay", phrase: "I'm okay" },
+  { id: "thumbs-down", label: "Thumbs Down", phraseKey: "no", phrase: "No" },
   { id: "peace", label: "Peace", phraseKey: "water", phrase: "Water, please" },
   { id: "point", label: "Point", phraseKey: "that-one", phrase: "That one" },
   { id: "ok-sign", label: "OK Sign", phraseKey: "thank-you", phrase: "Thank you" },
@@ -27,6 +28,9 @@ export const GESTURE_DEFINITIONS: GestureDefinition[] = [
   { id: "call-me", label: "Call Me", phraseKey: "call", phrase: "Please call someone" },
   { id: "three", label: "Three", phraseKey: "three", phrase: "Three" },
   { id: "four", label: "Four", phraseKey: "four", phrase: "Four" },
+  { id: "rock-on", label: "Rock On", phraseKey: "rock-on", phrase: "Rock on" },
+  { id: "vulcan", label: "Vulcan Salute", phraseKey: "vulcan", phrase: "Live long and prosper" },
+  { id: "pinch", label: "Pinch", phraseKey: "pinch", phrase: "A little" },
 ];
 
 const byId = new Map<string, GestureDefinition>(GESTURE_DEFINITIONS.map((g) => [g.id, g]));
@@ -65,6 +69,7 @@ const TEMPLATES: Record<string, CurlTemplate> = {
   "call-me": { thumb: STRAIGHT, index: CURLED, middle: CURLED, ring: CURLED, pinky: STRAIGHT },
   three: { thumb: STRAIGHT, index: STRAIGHT, middle: STRAIGHT, ring: CURLED, pinky: CURLED },
   four: { thumb: CURLED, index: STRAIGHT, middle: STRAIGHT, ring: STRAIGHT, pinky: STRAIGHT },
+  "rock-on": { thumb: CURLED, index: STRAIGHT, middle: CURLED, ring: CURLED, pinky: STRAIGHT },
 };
 
 /**
@@ -91,6 +96,34 @@ export function classifyLandmarks(lm: Vec3[] | null): RawPrediction | null {
     if (middle < 0.5 && ring < 0.5 && pinky < 0.5) {
       return makePrediction("ok-sign", curls, 0.85);
     }
+  }
+
+  // Special case: Pinch — thumb and index tips very close, other fingers curled.
+  // (Distinct from OK sign: OK has middle/ring/pinky extended.)
+  if (pinchDistance(lm) < 0.25) {
+    const { middle, ring, pinky } = curls;
+    if (middle > 0.6 && ring > 0.6 && pinky > 0.6) {
+      return makePrediction("pinch", curls, 0.85);
+    }
+  }
+
+  // Special case: Vulcan salute — all fingers straight BUT with a wide gap
+  // between middle and ring (index+middle together, ring+pinky together).
+  const allStraight =
+    curls.thumb < 0.4 &&
+    curls.index < 0.35 &&
+    curls.middle < 0.35 &&
+    curls.ring < 0.35 &&
+    curls.pinky < 0.35;
+  if (allStraight) {
+    const gapMiddleRing = Math.hypot(lm[12]!.x - lm[16]!.x, lm[12]!.y - lm[16]!.y);
+    const gapIndexMiddle = Math.hypot(lm[8]!.x - lm[12]!.x, lm[8]!.y - lm[12]!.y);
+    const gapRingPinky = Math.hypot(lm[16]!.x - lm[20]!.x, lm[16]!.y - lm[20]!.y);
+    // Vulcan: middle-ring gap significantly wider than the other gaps.
+    if (gapMiddleRing > gapIndexMiddle * 1.8 && gapMiddleRing > gapRingPinky * 1.8) {
+      return makePrediction("vulcan", curls, 0.85);
+    }
+    // Otherwise it's a plain open palm — let the template matcher handle it.
   }
 
   let bestId: string | null = null;
@@ -158,14 +191,15 @@ export { analyseFingers };
 
 /**
  * Map MediaPipe's neural-net gesture categories to our gesture definitions.
- * Returns null for "None", "Thumb_Down" (not in our vocabulary), or scores
- * below threshold — the pipeline then falls back to the rule-based classifier.
+ * Returns null for "None" or scores below threshold — the pipeline then
+ * falls back to the rule-based classifier.
  */
 const NEURAL_MAP: Record<string, string> = {
   Closed_Fist: "fist",
   Open_Palm: "open-palm",
   Pointing_Up: "point",
   Thumb_Up: "thumbs-up",
+  Thumb_Down: "thumbs-down",
   Victory: "peace",
   ILoveYou: "i-love-you",
 };
