@@ -1,8 +1,9 @@
 /**
  * Shared types for the on-device gesture-recognition pipeline.
  *
- * Pipeline: webcam → HandLandmarker (21 landmarks) → normalisation →
- * static-gesture classifier → GestureDecisionEngine → stable gesture event.
+ * Pipeline: webcam → GestureRecognizer (neural net + 21 landmarks) →
+ * neural prediction (primary) / geometric classifier (fallback) →
+ * GestureDecisionEngine → stable gesture event.
  */
 
 export type Vec3 = { x: number; y: number; z: number };
@@ -23,6 +24,17 @@ export type GestureId =
   | "call-me"
   | "three"
   | "four";
+
+/** MediaPipe GestureRecognizer's canned gesture categories. */
+export type MediaPipeGestureName =
+  | "None"
+  | "Closed_Fist"
+  | "Open_Palm"
+  | "Pointing_Up"
+  | "Thumb_Down"
+  | "Thumb_Up"
+  | "Victory"
+  | "ILoveYou";
 
 export type GestureDefinition = {
   /** Built-ins use the GestureId union; custom gestures use `custom-<label>`. */

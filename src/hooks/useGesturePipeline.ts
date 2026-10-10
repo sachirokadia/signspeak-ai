@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handTracker } from "@/lib/vision/handTracker";
-import { classifyLandmarks } from "@/lib/vision/classifier";
+import { classifyLandmarks, neuralToPrediction } from "@/lib/vision/classifier";
 import { GestureDecisionEngine } from "@/lib/vision/decisionEngine";
 import type { PipelineMetrics, RawPrediction, StableGesture, Vec3 } from "@/lib/vision/types";
 
@@ -97,7 +97,14 @@ export function useGesturePipeline(
           latencyEma === 0 ? result.inferenceMs : latencyEma * 0.8 + result.inferenceMs * 0.2;
 
         const currentOpts = optsRef.current;
+        // Primary: MediaPipe's trained neural net. Fallback: geometric rules
+        // for gestures the net doesn't know (OK sign, Three, Four, Call Me).
+        const neuralPred =
+          result.neural && result.neural.name !== "None"
+            ? neuralToPrediction(result.neural.name, result.neural.score)
+            : null;
         const pred =
+          neuralPred ??
           classifyLandmarks(result.landmarks) ??
           currentOpts.customPredict?.(result.landmarks) ??
           null;

@@ -8,7 +8,13 @@
  * which kills most false positives from background objects.
  */
 import { analyseFingers, fingerCurl, handSanity, pinchDistance } from "./landmarks";
-import type { GestureDefinition, GestureId, RawPrediction, Vec3 } from "./types";
+import type {
+  GestureDefinition,
+  GestureId,
+  MediaPipeGestureName,
+  RawPrediction,
+  Vec3,
+} from "./types";
 
 export const GESTURE_DEFINITIONS: GestureDefinition[] = [
   { id: "open-palm", label: "Open Palm", phraseKey: "hello", phrase: "Hello" },
@@ -149,3 +155,40 @@ function analyseFingersFromCurls(curls: Record<string, number>) {
 
 // Re-export for tests that import from classifier.
 export { analyseFingers };
+
+/**
+ * Map MediaPipe's neural-net gesture categories to our gesture definitions.
+ * Returns null for "None", "Thumb_Down" (not in our vocabulary), or scores
+ * below threshold — the pipeline then falls back to the rule-based classifier.
+ */
+const NEURAL_MAP: Record<string, string> = {
+  Closed_Fist: "fist",
+  Open_Palm: "open-palm",
+  Pointing_Up: "point",
+  Thumb_Up: "thumbs-up",
+  Victory: "peace",
+  ILoveYou: "i-love-you",
+};
+
+export function neuralToPrediction(
+  name: MediaPipeGestureName,
+  score: number,
+  fingerStates?: RawPrediction["fingerStates"],
+): RawPrediction | null {
+  if (score < 0.5) return null;
+  const id = NEURAL_MAP[name];
+  if (!id) return null;
+  const gesture = byId.get(id);
+  if (!gesture) return null;
+  return {
+    gesture,
+    confidence: Math.round(score * 100) / 100,
+    fingerStates: fingerStates ?? {
+      thumb: false,
+      index: false,
+      middle: false,
+      ring: false,
+      pinky: false,
+    },
+  };
+}

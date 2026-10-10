@@ -42,11 +42,11 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
 
-  // Self-hosted MediaPipe WASM + hand-tracking model: cache-first
-  // (immutable per installed version).
+  // Self-hosted MediaPipe WASM + models: cache-first (immutable per version).
   const isModelOrigin = MODEL_ORIGINS.has(url.origin);
   const isLocalWasm = url.origin === self.location.origin && url.pathname.startsWith("/wasm/");
-  if (isModelOrigin || isLocalWasm) {
+  const isLocalModel = url.origin === self.location.origin && url.pathname.startsWith("/models/");
+  if (isModelOrigin || isLocalWasm || isLocalModel) {
     event.respondWith(
       caches.open(MODEL_CACHE).then((cache) =>
         cache.match(event.request).then(

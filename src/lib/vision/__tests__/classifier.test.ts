@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { GESTURE_DEFINITIONS, classifyLandmarks, getGestureDefinition } from "../classifier";
+import {
+  GESTURE_DEFINITIONS,
+  classifyLandmarks,
+  getGestureDefinition,
+  neuralToPrediction,
+} from "../classifier";
 import {
   CALL_ME,
   FIST,
@@ -94,5 +99,30 @@ describe("gesture definitions", () => {
   it("getGestureDefinition throws for unknown ids", () => {
     // @ts-expect-error — exercising the runtime guard
     expect(() => getGestureDefinition("jazz-hands")).toThrow(/Unknown gesture id/);
+  });
+});
+
+describe("neuralToPrediction", () => {
+  it("maps MediaPipe categories to gesture definitions", () => {
+    const cases = [
+      ["Closed_Fist", "fist"],
+      ["Open_Palm", "open-palm"],
+      ["Pointing_Up", "point"],
+      ["Thumb_Up", "thumbs-up"],
+      ["Victory", "peace"],
+      ["ILoveYou", "i-love-you"],
+    ] as const;
+    for (const [mpName, expectedId] of cases) {
+      const pred = neuralToPrediction(mpName, 0.9);
+      expect(pred).not.toBeNull();
+      expect(pred!.gesture.id).toBe(expectedId);
+      expect(pred!.confidence).toBe(0.9);
+    }
+  });
+
+  it("returns null for None, Thumb_Down, and low scores", () => {
+    expect(neuralToPrediction("None", 0.9)).toBeNull();
+    expect(neuralToPrediction("Thumb_Down", 0.9)).toBeNull();
+    expect(neuralToPrediction("Open_Palm", 0.3)).toBeNull();
   });
 });
