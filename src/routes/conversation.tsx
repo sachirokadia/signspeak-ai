@@ -59,7 +59,7 @@ function ConversationPage() {
     [pushLog],
   );
 
-  const { live, metrics } = useGesturePipeline(videoEl, active, {
+  const { live, metrics, retryModel } = useGesturePipeline(videoEl, active, {
     onStableGesture: handleStableGesture,
   });
 
@@ -92,7 +92,12 @@ function ConversationPage() {
         <div className="mt-8 grid gap-5 lg:grid-cols-2">
           <div className="relative">
             <WebcamPanel active={active} onToggle={setActive} onVideoReady={handleVideoReady} />
-            <PerformanceHUD metrics={metrics} live={live} active={active} />
+            <PerformanceHUD
+              metrics={metrics}
+              live={live}
+              active={active}
+              onRetryModel={retryModel}
+            />
           </div>
 
           <section

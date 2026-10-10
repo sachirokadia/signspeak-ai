@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { handTracker } from "@/lib/vision/handTracker";
 import { classifyLandmarks } from "@/lib/vision/classifier";
 import { GestureDecisionEngine } from "@/lib/vision/decisionEngine";
@@ -35,6 +35,7 @@ export function useGesturePipeline(
     modelStatus: "idle",
     degraded: false,
   });
+  const [modelRetryCount, setModelRetryCount] = useState(0);
 
   const cbRef = useRef(opts.onStableGesture);
   cbRef.current = opts.onStableGesture;
@@ -42,6 +43,12 @@ export function useGesturePipeline(
   optsRef.current = opts;
   // Avoid re-rendering 30×/s: only publish when the visible state changes.
   const lastLiveKey = useRef<string>("");
+
+  /** Reset the hand tracker and re-attempt model download. */
+  const retryModel = useCallback(() => {
+    handTracker.dispose();
+    setModelRetryCount((c) => c + 1);
+  }, []);
 
   useEffect(() => {
     if (!active || !video) {
@@ -142,8 +149,8 @@ export function useGesturePipeline(
       cancelled = true;
       cancelAnimationFrame(raf);
     };
-    // Intentionally keyed on identity of video/active only.
-  }, [active, video]);
+    // Intentionally keyed on identity of video/active only, plus manual model retry.
+  }, [active, video, modelRetryCount]);
 
-  return { live, metrics };
+  return { live, metrics, retryModel };
 }

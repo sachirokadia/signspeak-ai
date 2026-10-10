@@ -27,10 +27,12 @@ export function PerformanceHUD({
   metrics,
   live,
   active,
+  onRetryModel,
 }: {
   metrics: PipelineMetrics;
   live: RawPrediction | null;
   active: boolean;
+  onRetryModel?: () => void;
 }) {
   const reducedMotion = useReducedMotion();
   if (!active) return null;
@@ -58,9 +60,22 @@ export function PerformanceHUD({
       </div>
       <div className="mt-1.5 min-h-4 text-[11px] tabular-nums text-white/85">
         {metrics.modelStatus === "error" ? (
-          <span className="text-rose-300">Model failed to load</span>
-        ) : metrics.modelStatus !== "ready" ? (
+          <span className="text-rose-300">
+            Model failed to load{metrics.modelError ? `: ${metrics.modelError}` : ""}
+            {onRetryModel ? (
+              <button
+                type="button"
+                onClick={onRetryModel}
+                className="pointer-events-auto ml-2 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-white hover:bg-white/25"
+              >
+                Retry
+              </button>
+            ) : null}
+          </span>
+        ) : metrics.modelStatus === "loading" ? (
           <span className="text-white/70">Loading hand model…</span>
+        ) : metrics.modelStatus === "idle" ? (
+          <span className="text-white/60">Waiting for camera…</span>
         ) : live ? (
           <span>
             {live.gesture.label} · {Math.round(live.confidence * 100)}%

@@ -116,7 +116,7 @@ function Dashboard() {
     }
   }, []);
 
-  const { live, metrics } = useGesturePipeline(videoEl, active, {
+  const { live, metrics, retryModel } = useGesturePipeline(videoEl, active, {
     onStableGesture: handleStableGesture,
     customPredict: customPredict ?? undefined,
   });
@@ -181,7 +181,12 @@ function Dashboard() {
           <div className="flex flex-col gap-5">
             <div className="relative">
               <WebcamPanel active={active} onToggle={setActive} onVideoReady={handleVideoReady} />
-              <PerformanceHUD metrics={metrics} live={live} active={active} />
+              <PerformanceHUD
+                metrics={metrics}
+                live={live}
+                active={active}
+                onRetryModel={retryModel}
+              />
             </div>
             <GestureHistory entries={entries} height="h-72" />
             <div className="flex justify-end">

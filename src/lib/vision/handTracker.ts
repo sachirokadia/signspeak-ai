@@ -54,6 +54,9 @@ class HandTracker {
   status: "idle" | "loading" | "ready" | "error" = "idle";
   error: string | null = null;
 
+  /** Maximum time to wait for WASM + model download before giving up. */
+  static LOAD_TIMEOUT_MS = 45000;
+
   async ensureLoaded(): Promise<void> {
     if (this.landmarker) return;
     if (this.loading) {
@@ -65,15 +68,31 @@ class HandTracker {
     this.loading = (async () => {
       try {
         const { wasmUrl, modelUrl } = resolveAssetUrls();
-        const vision = await FilesetResolver.forVisionTasks(wasmUrl);
-        this.landmarker = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: { modelAssetPath: modelUrl, delegate: "GPU" },
-          runningMode: "VIDEO",
-          numHands: 1,
-          minHandDetectionConfidence: 0.5,
-          minHandPresenceConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-        });
+        const timeout = (label: string) =>
+          new Promise<never>((_, reject) =>
+            setTimeout(
+              () =>
+                reject(
+                  new Error(`${label} timed out after ${HandTracker.LOAD_TIMEOUT_MS / 1000}s`),
+                ),
+              HandTracker.LOAD_TIMEOUT_MS,
+            ),
+          );
+        const vision = await Promise.race([
+          FilesetResolver.forVisionTasks(wasmUrl),
+          timeout("WASM runtime download"),
+        ]);
+        this.landmarker = await Promise.race([
+          HandLandmarker.createFromOptions(vision, {
+            baseOptions: { modelAssetPath: modelUrl, delegate: "GPU" },
+            runningMode: "VIDEO",
+            numHands: 1,
+            minHandDetectionConfidence: 0.5,
+            minHandPresenceConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+          }),
+          timeout("Hand model download"),
+        ]);
         this.status = "ready";
       } catch (e) {
         this.status = "error";
