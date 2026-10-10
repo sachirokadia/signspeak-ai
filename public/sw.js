@@ -45,8 +45,7 @@ self.addEventListener("fetch", (event) => {
   // Self-hosted MediaPipe WASM + hand-tracking model: cache-first
   // (immutable per installed version).
   const isModelOrigin = MODEL_ORIGINS.has(url.origin);
-  const isLocalWasm =
-    url.origin === self.location.origin && url.pathname.startsWith("/wasm/");
+  const isLocalWasm = url.origin === self.location.origin && url.pathname.startsWith("/wasm/");
   if (isModelOrigin || isLocalWasm) {
     event.respondWith(
       caches.open(MODEL_CACHE).then((cache) =>
