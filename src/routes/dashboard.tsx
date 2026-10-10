@@ -108,8 +108,18 @@ function Dashboard() {
     };
     setCurrent(entry);
     setEntries((prev) => [entry, ...prev].slice(0, 200));
-    setTranscript((prev) => (prev ? `${prev} ${phrase}` : phrase));
-    setSentenceWords((prev) => [...prev, { id: entry.id, text: phrase }].slice(-30));
+    // Don't spam the transcript with the same phrase consecutively —
+    // holding a pose shouldn't repeat the word.
+    setTranscript((prev) => {
+      const words = prev ? prev.split(" ") : [];
+      if (words[words.length - 1] === phrase) return prev;
+      return prev ? `${prev} ${phrase}` : phrase;
+    });
+    setSentenceWords((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.text === phrase) return prev;
+      return [...prev, { id: entry.id, text: phrase }].slice(-30);
+    });
 
     if (autoSpeakRef.current && g.confidence >= SPEAK_CONFIDENCE_THRESHOLD) {
       speak(phrase, { rate: rateRef.current, lang: speechLangFor(lang) });

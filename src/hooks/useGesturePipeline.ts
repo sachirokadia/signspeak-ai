@@ -90,6 +90,8 @@ export function useGesturePipeline(
     function loop() {
       if (cancelled) return;
       const result = handTracker.detect(video!);
+      // Count every frame for FPS, not just frames with detections.
+      frames += 1;
       if (result) {
         latencyEma =
           latencyEma === 0 ? result.inferenceMs : latencyEma * 0.8 + result.inferenceMs * 0.2;
@@ -107,7 +109,6 @@ export function useGesturePipeline(
 
         const stable = engine.push(pred);
         if (stable) cbRef.current?.(stable);
-        frames += 1;
       }
 
       const now = performance.now();

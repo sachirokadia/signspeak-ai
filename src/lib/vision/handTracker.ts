@@ -87,9 +87,9 @@ class HandTracker {
             baseOptions: { modelAssetPath: modelUrl, delegate: "GPU" },
             runningMode: "VIDEO",
             numHands: 1,
-            minHandDetectionConfidence: 0.5,
-            minHandPresenceConfidence: 0.5,
-            minTrackingConfidence: 0.5,
+            minHandDetectionConfidence: 0.7,
+            minHandPresenceConfidence: 0.7,
+            minTrackingConfidence: 0.7,
           }),
           timeout("Hand model download"),
         ]);
