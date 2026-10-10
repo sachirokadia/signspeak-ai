@@ -15,7 +15,7 @@ export function WebcamPanel({
   /** Receives the live <video> element (or null) for the vision pipeline. */
   onVideoReady: (video: HTMLVideoElement | null) => void;
 }) {
-  const { videoRef, status, error } = useCamera(active);
+  const { videoRef, status, error, retry } = useCamera(active);
   const [mirrored, setMirrored] = useState(true);
 
   useEffect(() => {
@@ -79,11 +79,7 @@ export function WebcamPanel({
                 {status === "error" ? error : "Turn on the camera to begin real-time translation."}
               </p>
               {status === "error" ? (
-                <Button
-                  variant="secondary"
-                  className="mt-4 rounded-full"
-                  onClick={() => onToggle(true)}
-                >
+                <Button variant="secondary" className="mt-4 rounded-full" onClick={retry}>
                   Try again
                 </Button>
               ) : null}

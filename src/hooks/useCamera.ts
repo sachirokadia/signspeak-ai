@@ -13,6 +13,7 @@ export function useCamera(active: boolean) {
   const streamRef = useRef<MediaStream | null>(null);
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [error, setError] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -20,6 +21,11 @@ export function useCamera(active: boolean) {
     if (videoRef.current) videoRef.current.srcObject = null;
     setStatus("idle");
     setError("");
+  }, []);
+
+  /** Re-run the start sequence (e.g. after the user fixes permissions). */
+  const retry = useCallback(() => {
+    setRetryCount((c) => c + 1);
   }, []);
 
   useEffect(() => {
@@ -60,11 +66,22 @@ export function useCamera(active: boolean) {
           }
         }
         if (!cancelled) setStatus("live");
-      } catch {
+      } catch (e) {
         if (cancelled) return;
         setStatus("error");
+        const name = e instanceof DOMException ? e.name : "";
         setError(
-          "Camera access was blocked. Enable permissions in your browser to start translating.",
+          name === "NotAllowedError"
+            ? "Camera permission was denied. Allow camera access in your browser's site settings, then try again."
+            : name === "NotFoundError"
+              ? "No camera was found on this device. Connect a camera and try again."
+              : name === "NotReadableError"
+                ? "The camera is already in use by another app. Close the other app and try again."
+                : name === "OverconstrainedError"
+                  ? "This camera doesn't support the requested settings. Try again — we'll fall back automatically."
+                  : name === "SecurityError"
+                    ? "Camera access needs a secure (HTTPS) connection. Please use the https:// site address."
+                    : "Camera access was blocked. Enable permissions in your browser to start translating.",
         );
       }
     }
@@ -75,10 +92,10 @@ export function useCamera(active: boolean) {
     return () => {
       cancelled = true;
     };
-  }, [active, stop]);
+  }, [active, retryCount, stop]);
 
   // Always release the camera on unmount.
   useEffect(() => stop, [stop]);
 
-  return { videoRef, status, error, stop };
+  return { videoRef, status, error, stop, retry };
 }
