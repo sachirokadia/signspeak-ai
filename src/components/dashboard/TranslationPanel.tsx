@@ -3,6 +3,8 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Copy, Pause, Play, Trash2, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CtaPill } from "@/components/ui/cta-pill";
+import { Sparkle } from "@/components/ui/doodles";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -55,7 +57,10 @@ export function TranslationPanel({
       <section className="glass-panel rounded-3xl p-6">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <div className="min-w-0">
-            <h2 className="truncate text-sm font-semibold">Live translation</h2>
+            <h2 className="flex items-center gap-2 truncate text-sm font-semibold">
+              Live translation
+              <Sparkle className="h-3.5 w-3.5 shrink-0 text-yellow" />
+            </h2>
             <p className="truncate text-xs text-muted-foreground">
               Updates as each sign is recognised
             </p>
@@ -87,10 +92,10 @@ export function TranslationPanel({
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button onClick={speak} className="bg-brand h-11 rounded-full px-5">
-            <Volume2 className="mr-1.5 h-4 w-4" />
+          <CtaPill onClick={speak}>
+            <Volume2 className="h-4 w-4" aria-hidden="true" />
             Speak
-          </Button>
+          </CtaPill>
           <Button
             variant="outline"
             className="h-11 rounded-full px-5"
@@ -102,7 +107,7 @@ export function TranslationPanel({
             <Copy className="mr-1.5 h-4 w-4" />
             Copy
           </Button>
-          <Button variant="ghost" className="h-11 rounded-full px-5" onClick={onClear}>
+          <Button variant="outline" className="h-11 rounded-full px-5" onClick={onClear}>
             <Trash2 className="mr-1.5 h-4 w-4" />
             Clear
           </Button>
@@ -119,9 +124,15 @@ export function TranslationPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.28 }}
-              className="font-display mt-3 text-2xl font-semibold"
+              className="font-display mt-3 text-4xl font-bold tracking-tight text-balance sm:text-5xl"
             >
-              {current?.gesture ?? "—"}
+              {current?.gesture ? (
+                <span className="bg-yellow text-yellow-foreground inline-block -rotate-1 rounded-xl px-2.5 py-0.5 shadow-sticker">
+                  {current.gesture}
+                </span>
+              ) : (
+                "—"
+              )}
             </motion.p>
           </AnimatePresence>
           <p className="mt-2 text-xs text-muted-foreground">
@@ -136,7 +147,7 @@ export function TranslationPanel({
           </div>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
             <motion.div
-              className="bg-brand h-full rounded-full"
+              className="bg-yellow h-full rounded-full"
               animate={{ width: `${confidence}%` }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             />

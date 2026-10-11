@@ -29,7 +29,10 @@ function PrivacyPage() {
       <SkipLink />
       <Navbar />
       <main id="main-content" className="mx-auto max-w-5xl px-5 py-10">
-        <h1 className="text-2xl font-semibold sm:text-3xl">Privacy by architecture</h1>
+        <h1 className="font-display text-3xl font-bold sm:text-4xl">
+          Privacy by{" "}
+          <mark className="rounded-md bg-yellow px-1 text-yellow-foreground">architecture</mark>
+        </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           SignSpeak AI was designed so there is nothing sensitive to leak: recognition happens
           entirely on your device. This page shows the complete data flow — no fine print.

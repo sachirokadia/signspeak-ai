@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { SkipLink } from "@/components/a11y/SkipLink";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
+import { StickerChip } from "@/components/ui/sticker-chip";
+import { Sparkle, Squiggle } from "@/components/ui/doodles";
 import { WebcamPanel } from "@/components/dashboard/WebcamPanel";
 import { TranslationPanel } from "@/components/dashboard/TranslationPanel";
 import { GestureHistory } from "@/components/dashboard/GestureHistory";
@@ -18,6 +20,7 @@ import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useSettings } from "@/lib/settings";
 import { loadHistory, saveHistory } from "@/lib/historyStore";
 import { speak } from "@/lib/speech";
+import { cn } from "@/lib/utils";
 import { APP_LANGS, resolvePhrase, speechLangFor } from "@/lib/i18n/phrases";
 import { loadCustomPredictor, type CustomPredictor } from "@/lib/vision/customGestures";
 import type { StableGesture } from "@/lib/vision/types";
@@ -143,13 +146,32 @@ function Dashboard() {
       <OfflineIndicator />
       <Navbar />
       <main id="main-content" className="mx-auto max-w-7xl px-5 py-10">
-        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
+        <header className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 overflow-hidden sm:flex sm:justify-between">
           <div className="min-w-0">
-            <h1 className="truncate text-2xl font-semibold sm:text-3xl">Translation dashboard</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2" aria-hidden="true">
+              <StickerChip tone="yellow" tilt="left">
+                #OnDevice
+              </StickerChip>
+              <StickerChip tone="violet" tilt="right">
+                #14Gestures
+              </StickerChip>
+              <StickerChip tone="ghost" tilt="none">
+                #NoAccount
+              </StickerChip>
+            </div>
+            <h1 className="font-display mt-3 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+              Get ready to{" "}
+              <span className="bg-yellow text-yellow-foreground inline-block -rotate-2 rounded-xl px-2.5 shadow-sticker">
+                speak
+              </span>{" "}
+              with your hands
+            </h1>
+            <p className="mt-2 flex max-w-lg items-center gap-2 text-sm text-muted-foreground">
               Sign in front of the camera — text and speech follow instantly.
+              <Squiggle className="h-4 w-16 shrink-0 text-yellow" />
             </p>
           </div>
+          <Sparkle className="absolute top-2 right-1/3 hidden h-6 w-6 text-yellow/60 lg:block" />
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             {NAV_LINKS.map((l) => (
               <Link
@@ -160,30 +182,35 @@ function Dashboard() {
                 {l.label}
               </Link>
             ))}
-            <div
-              className="flex rounded-full border border-border bg-background/70 p-0.5 backdrop-blur"
-              role="group"
-              aria-label="Spoken language"
-            >
-              {APP_LANGS.map((l) => (
+            <div className="flex items-center gap-1.5" role="group" aria-label="Spoken language">
+              {APP_LANGS.map((l, i) => (
                 <button
                   key={l.id}
                   type="button"
                   onClick={() => setLang(l.id)}
                   aria-pressed={settings.lang === l.id}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  className={cn(
+                    "rounded-full px-3.5 py-1.5 text-xs font-bold tracking-wide transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    i === 0 ? "-rotate-3" : "rotate-2",
                     settings.lang === l.id
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                      ? "bg-yellow text-yellow-foreground shadow-sticker"
+                      : "border border-border bg-card/70 text-muted-foreground hover:text-foreground",
+                  )}
                 >
                   {l.id === "en" ? "EN" : "हिं"}
                 </button>
               ))}
             </div>
-            <span className="shrink-0 rounded-full border border-border bg-background/70 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
+            <StickerChip tone={active ? "yellow" : "ghost"} tilt="left">
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  active ? "bg-yellow-foreground" : "bg-muted-foreground/50",
+                )}
+                aria-hidden="true"
+              />
               {active ? "Session active" : "Session idle"}
-            </span>
+            </StickerChip>
           </div>
         </header>
 

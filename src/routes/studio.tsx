@@ -7,10 +7,14 @@ import { Navbar } from "@/components/site/Navbar";
 import { SkipLink } from "@/components/a11y/SkipLink";
 import { WebcamPanel } from "@/components/dashboard/WebcamPanel";
 import { Button } from "@/components/ui/button";
+import { CtaPill } from "@/components/ui/cta-pill";
+import { StickerChip } from "@/components/ui/sticker-chip";
+import { Sparkle } from "@/components/ui/doodles";
 import { handTracker } from "@/lib/vision/handTracker";
 import { vectorFromLandmarks, KnnClassifier } from "@/lib/vision/trainer";
 import { deleteSamples, listGestureSamples, saveGestureSamples } from "@/lib/vision/customGestures";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
+import { cn } from "@/lib/utils";
 
 const title = "Gesture Studio — SignSpeak AI";
 const description =
@@ -181,6 +185,7 @@ function StudioPage() {
   }, [testing, videoEl]);
 
   const canRecord = active && !!videoEl && !recording && label.trim().length > 0;
+  const progressPct = Math.round(progress * 100);
 
   const handleDelete = useCallback(
     async (g: GestureGroup) => {
@@ -196,10 +201,13 @@ function StudioPage() {
       <SkipLink />
       <Navbar />
       <main id="main-content" className="mx-auto max-w-7xl px-5 py-10">
-        <h1 className="text-2xl font-semibold sm:text-3xl">Gesture Studio</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Teach SignSpeak gestures of your own — a name sign, a family sign, anything. Samples never
-          leave this browser; the classifier trains instantly on-device.
+        <h1 className="font-display text-3xl font-bold sm:text-4xl">
+          Teach SignSpeak{" "}
+          <mark className="rounded-md bg-yellow px-1 text-yellow-foreground">your</mark> gestures
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          A name sign, a family sign, anything you like. Samples never leave this browser; the
+          classifier trains instantly on-device.
         </p>
 
         {notice ? (
@@ -212,8 +220,12 @@ function StudioPage() {
           <WebcamPanel active={active} onToggle={setActive} onVideoReady={handleVideoReady} />
 
           <div className="flex flex-col gap-5">
-            <section aria-labelledby="teach-heading" className="glass-panel rounded-3xl p-5">
-              <h2 id="teach-heading" className="flex items-center gap-2 text-sm font-semibold">
+            <section
+              aria-labelledby="teach-heading"
+              className="glass-panel relative overflow-hidden rounded-[28px] p-6"
+            >
+              <Sparkle className="absolute right-5 top-5 h-5 w-5 text-yellow" />
+              <h2 id="teach-heading" className="flex items-center gap-2 text-sm font-bold">
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 Teach a new gesture
               </h2>
@@ -224,49 +236,56 @@ function StudioPage() {
                   placeholder='e.g. "Mum", "medicine", "tired"'
                   aria-label="Gesture label"
                   disabled={recording}
-                  className="h-11 min-w-0 flex-1 rounded-full border border-input bg-background px-4 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                  className="h-12 min-w-0 flex-1 rounded-full border border-input bg-background px-4 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
                 />
                 {recording ? (
                   <Button
                     variant="outline"
-                    className="h-11 rounded-full px-5"
+                    className="h-12 rounded-full px-5"
                     onClick={() => setRecording(false)}
                   >
                     <CircleStop className="mr-1.5 h-4 w-4" aria-hidden="true" />
                     Stop
                   </Button>
                 ) : (
-                  <Button
-                    className="h-11 rounded-full px-5"
+                  <CtaPill
                     disabled={!canRecord}
                     onClick={() => {
                       setNotice("");
                       setProgress(0);
                       setRecording(true);
                     }}
+                    className="h-12 px-5"
                   >
-                    <Mic className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                    Record
-                  </Button>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Mic className="h-4 w-4" aria-hidden="true" />
+                      Record
+                    </span>
+                  </CtaPill>
                 )}
               </div>
               {recording ? (
-                <div className="mt-3">
-                  <div
-                    className="h-2 overflow-hidden rounded-full bg-muted"
-                    role="progressbar"
-                    aria-valuenow={Math.round(progress * 100)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-label="Recording progress"
-                  >
+                <div className="mt-4">
+                  <div className="flex items-center gap-3">
                     <div
-                      className="h-full rounded-full bg-primary transition-[width]"
-                      style={{ width: `${Math.round(progress * 100)}%` }}
-                    />
+                      className="h-3 flex-1 overflow-hidden rounded-full bg-muted"
+                      role="progressbar"
+                      aria-valuenow={progressPct}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label="Recording progress"
+                    >
+                      <div
+                        className="bg-yellow h-full rounded-full transition-[width]"
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                    <StickerChip tone="yellow" tilt="right">
+                      {progressPct}%
+                    </StickerChip>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Hold the gesture steady — {Math.round(progress * 100)}%
+                    Hold the gesture steady — {progressPct}%
                   </p>
                 </div>
               ) : (
@@ -277,15 +296,18 @@ function StudioPage() {
               )}
             </section>
 
-            <section aria-labelledby="test-heading" className="glass-panel rounded-3xl p-5">
+            <section aria-labelledby="test-heading" className="glass-panel rounded-[28px] p-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 id="test-heading" className="flex items-center gap-2 text-sm font-semibold">
+                <h2 id="test-heading" className="flex items-center gap-2 text-sm font-bold">
                   <FlaskConical className="h-4 w-4" aria-hidden="true" />
                   Test your gestures
                 </h2>
                 <Button
                   variant={testing ? "outline" : "default"}
-                  className="h-10 rounded-full px-4"
+                  className={cn(
+                    "h-10 rounded-full px-4",
+                    !testing && "bg-brand text-primary-foreground shadow-soft",
+                  )}
                   disabled={!active || groups.length === 0}
                   onClick={() => setTesting((t) => !t)}
                 >
@@ -300,12 +322,11 @@ function StudioPage() {
                       : "Perform a gesture you taught to see it recognised."}
                   </span>
                 ) : testPred ? (
-                  <span>
+                  <span className="flex items-center gap-2">
                     <strong>{testPred.label}</strong>
-                    <span className="text-muted-foreground">
-                      {" "}
-                      · {Math.round(testPred.confidence * 100)}% match
-                    </span>
+                    <StickerChip tone="violet" tilt="right">
+                      {Math.round(testPred.confidence * 100)}% match
+                    </StickerChip>
                   </span>
                 ) : (
                   <span className="text-muted-foreground">Show your hand…</span>
@@ -313,8 +334,8 @@ function StudioPage() {
               </div>
             </section>
 
-            <section aria-labelledby="saved-heading" className="glass-panel rounded-3xl p-5">
-              <h2 id="saved-heading" className="text-sm font-semibold">
+            <section aria-labelledby="saved-heading" className="glass-panel rounded-[28px] p-6">
+              <h2 id="saved-heading" className="text-sm font-bold">
                 Your gestures ({groups.length})
               </h2>
               {groups.length === 0 ? (
@@ -323,20 +344,35 @@ function StudioPage() {
                   dashboard automatically.
                 </p>
               ) : (
-                <ul className="mt-3 flex flex-col gap-2">
-                  {groups.map((g) => (
+                <ul className="mt-4 flex flex-wrap gap-3">
+                  {groups.map((g, i) => (
                     <li
                       key={g.label}
-                      className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-background/60 px-4 py-2.5"
+                      className={cn(
+                        "flex items-center gap-3 rounded-2xl border border-border px-4 py-3 shadow-sticker",
+                        i % 2 === 0
+                          ? "-rotate-1 bg-yellow text-yellow-foreground"
+                          : "rotate-1 bg-primary text-primary-foreground",
+                      )}
                     >
-                      <span className="text-sm">
-                        <strong>{g.label}</strong>
-                        <span className="text-muted-foreground"> · {g.count} samples</span>
+                      <span className="text-sm font-bold">{g.label}</span>
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums",
+                          i % 2 === 0 ? "bg-black/10" : "bg-white/20",
+                        )}
+                      >
+                        {g.count} samples
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-9 w-9 rounded-full"
+                        className={cn(
+                          "h-8 w-8 rounded-full",
+                          i % 2 === 0
+                            ? "text-yellow-foreground hover:bg-black/10"
+                            : "text-primary-foreground hover:bg-white/20",
+                        )}
                         aria-label={`Delete gesture ${g.label}`}
                         onClick={() => void handleDelete(g)}
                       >

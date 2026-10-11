@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { GestureHistory } from "@/components/dashboard/GestureHistory";
+import { Sparkle } from "@/components/ui/doodles";
 import { loadHistory } from "@/lib/historyStore";
 import type { HistoryEntry } from "@/lib/gestures";
+import { cn } from "@/lib/utils";
 
 const title = "History — SignSpeak AI";
 const description =
@@ -33,28 +35,36 @@ function HistoryPage() {
 
   const total = entries.length;
   const average =
-    total > 0
-      ? Math.round((entries.reduce((sum, e) => sum + e.confidence, 0) / total) * 100)
-      : 0;
+    total > 0 ? Math.round((entries.reduce((sum, e) => sum + e.confidence, 0) / total) * 100) : 0;
 
   return (
     <div className="min-h-dvh bg-soft">
       <Navbar />
       <main className="mx-auto max-w-4xl px-5 py-14">
-        <h1 className="text-3xl font-semibold">Conversation history</h1>
+        <h1 className="font-display text-3xl font-bold sm:text-4xl">
+          Conversation{" "}
+          <mark className="rounded-md bg-yellow px-1 text-yellow-foreground">history</mark>
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Stored locally on this device. Clear it any time from Settings.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           {[
-            ["Phrases translated", String(total)],
-            ["Average confidence", `${average}%`],
-            ["Storage", "This device only"],
-          ].map(([label, value]) => (
-            <div key={label} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
-              <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="font-display mt-1.5 text-xl font-semibold">{value}</p>
+            { label: "Phrases translated", value: String(total), tilt: "-rotate-2" },
+            { label: "Average confidence", value: `${average}%`, tilt: "rotate-1" },
+            { label: "Storage", value: "This device only", tilt: "-rotate-1" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className={cn(
+                "relative overflow-hidden rounded-[24px] border border-border bg-card p-5 shadow-sticker",
+                s.tilt,
+              )}
+            >
+              <Sparkle className="absolute right-3 top-3 h-4 w-4 text-yellow" aria-hidden="true" />
+              <p className="font-display text-2xl font-bold tabular-nums">{s.value}</p>
+              <p className="mt-1 text-xs font-semibold text-muted-foreground">{s.label}</p>
             </div>
           ))}
         </div>

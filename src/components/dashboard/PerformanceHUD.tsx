@@ -2,6 +2,7 @@
 
 import { Activity } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { StickerChip } from "@/components/ui/sticker-chip";
 import type { PipelineMetrics, RawPrediction } from "@/lib/vision/types";
 import { cn } from "@/lib/utils";
 
@@ -53,9 +54,9 @@ export function PerformanceHUD({
           {metrics.fps} FPS · {metrics.latencyMs} ms
         </span>
         {metrics.degraded && (
-          <span className="rounded-full bg-amber-400/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-200">
+          <StickerChip tone="yellow" tilt="none" className="px-1.5 py-0 text-[10px]">
             ECO
-          </span>
+          </StickerChip>
         )}
       </div>
       <div className="mt-1.5 min-h-4 text-[11px] tabular-nums text-white/85">
@@ -84,7 +85,7 @@ export function PerformanceHUD({
               aria-hidden="true"
             >
               <span
-                className="block h-full rounded-full bg-emerald-300"
+                className="block h-full rounded-full bg-yellow"
                 style={{ width: `${Math.round(live.confidence * 100)}%` }}
               />
             </span>

@@ -11,7 +11,7 @@ export function ExportHistoryButton({ entries }: { entries: HistoryEntry[] }) {
     <Button
       variant="outline"
       size="sm"
-      className="rounded-full"
+      className="rounded-full border-border bg-card/70 backdrop-blur transition-colors hover:bg-card"
       disabled={entries.length === 0}
       onClick={() => exportHistoryCsv(entries)}
     >

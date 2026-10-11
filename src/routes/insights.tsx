@@ -16,9 +16,12 @@ import {
 } from "recharts";
 import { Navbar } from "@/components/site/Navbar";
 import { SkipLink } from "@/components/a11y/SkipLink";
+import { StickerChip } from "@/components/ui/sticker-chip";
+import { Sparkle, Squiggle } from "@/components/ui/doodles";
 import { loadHistory } from "@/lib/historyStore";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import type { HistoryEntry } from "@/lib/gestures";
+import { cn } from "@/lib/utils";
 
 const title = "Insights — SignSpeak AI";
 const description =
@@ -98,31 +101,47 @@ function InsightsPage() {
       <SkipLink />
       <Navbar />
       <main id="main-content" className="mx-auto max-w-7xl px-5 py-10">
-        <h1 className="flex items-center gap-2 text-2xl font-semibold sm:text-3xl">
-          <BarChart3 className="h-7 w-7" aria-hidden="true" />
-          Insights
+        <h1 className="font-display flex items-center gap-2 text-3xl font-bold sm:text-4xl">
+          <BarChart3 className="h-8 w-8" aria-hidden="true" />
+          <span>
+            Your signing{" "}
+            <mark className="rounded-md bg-yellow px-1 text-yellow-foreground">insights</mark>
+          </span>
         </h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Computed on-device from your saved history — nothing leaves the browser.
         </p>
 
         <div className="mt-8 grid gap-5 sm:grid-cols-3">
           {[
-            { label: "Gestures translated", value: String(totals.gestures) },
-            { label: "Average confidence", value: `${totals.avgConfidence}%` },
-            { label: "Active days (14d)", value: String(totals.daysActive) },
+            { label: "Gestures translated", value: String(totals.gestures), tilt: "-rotate-1" },
+            { label: "Average confidence", value: `${totals.avgConfidence}%`, tilt: "rotate-1" },
+            { label: "Active days (14d)", value: String(totals.daysActive), tilt: "-rotate-2" },
           ].map((s) => (
-            <div key={s.label} className="glass-panel rounded-3xl p-5">
-              <p className="text-3xl font-bold tabular-nums">{s.value}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
+            <div
+              key={s.label}
+              className={cn(
+                "glass-panel relative overflow-hidden rounded-[28px] p-6 shadow-sticker",
+                s.tilt,
+              )}
+            >
+              <Sparkle className="absolute right-4 top-4 h-5 w-5 text-yellow" aria-hidden="true" />
+              <p className="font-display text-4xl font-bold tabular-nums">{s.value}</p>
+              <p className="mt-1 text-xs font-semibold text-muted-foreground">{s.label}</p>
             </div>
           ))}
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
-          <section aria-labelledby="daily-heading" className="glass-panel rounded-3xl p-5">
-            <h2 id="daily-heading" className="text-sm font-semibold">
-              Gestures per day
+          <section
+            aria-labelledby="daily-heading"
+            className="glass-panel relative overflow-hidden rounded-[28px] p-6"
+          >
+            <Squiggle className="absolute right-5 top-5 h-3 w-14 text-primary" />
+            <h2 id="daily-heading" className="text-sm font-bold">
+              <StickerChip tone="violet" tilt="none">
+                Gestures per day
+              </StickerChip>
             </h2>
             <div className="mt-3 h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -137,9 +156,15 @@ function InsightsPage() {
             </div>
           </section>
 
-          <section aria-labelledby="conf-heading" className="glass-panel rounded-3xl p-5">
-            <h2 id="conf-heading" className="text-sm font-semibold">
-              Confidence trend (%)
+          <section
+            aria-labelledby="conf-heading"
+            className="glass-panel relative overflow-hidden rounded-[28px] p-6"
+          >
+            <Squiggle className="absolute right-5 top-5 h-3 w-14 text-yellow" />
+            <h2 id="conf-heading" className="text-sm font-bold">
+              <StickerChip tone="yellow" tilt="none">
+                Confidence trend (%)
+              </StickerChip>
             </h2>
             <div className="mt-3 h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -162,8 +187,8 @@ function InsightsPage() {
           </section>
         </div>
 
-        <section aria-labelledby="top-heading" className="glass-panel mt-5 rounded-3xl p-5">
-          <h2 id="top-heading" className="text-sm font-semibold">
+        <section aria-labelledby="top-heading" className="glass-panel mt-5 rounded-[28px] p-6">
+          <h2 id="top-heading" className="text-sm font-bold">
             Most used gestures
           </h2>
           {topGestures.length === 0 ? (
@@ -181,7 +206,9 @@ function InsightsPage() {
                     <span className="mr-2 text-muted-foreground tabular-nums">{i + 1}.</span>
                     <strong>{g.gesture}</strong>
                   </span>
-                  <span className="text-muted-foreground tabular-nums">{g.count}×</span>
+                  <StickerChip tone={i === 0 ? "yellow" : "ghost"} tilt={i % 2 ? "right" : "left"}>
+                    {g.count}×
+                  </StickerChip>
                 </li>
               ))}
             </ol>

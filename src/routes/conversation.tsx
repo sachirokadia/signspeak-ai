@@ -8,6 +8,8 @@ import { SkipLink } from "@/components/a11y/SkipLink";
 import { WebcamPanel } from "@/components/dashboard/WebcamPanel";
 import { PerformanceHUD } from "@/components/dashboard/PerformanceHUD";
 import { Button } from "@/components/ui/button";
+import { CtaPill } from "@/components/ui/cta-pill";
+import { Sparkle } from "@/components/ui/doodles";
 import { useGesturePipeline } from "@/hooks/useGesturePipeline";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
@@ -84,8 +86,11 @@ function ConversationPage() {
       <SkipLink />
       <Navbar />
       <main id="main-content" className="mx-auto max-w-7xl px-5 py-10">
-        <h1 className="text-2xl font-semibold sm:text-3xl">Conversation mode</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+        <h1 className="font-display text-3xl font-bold sm:text-4xl">
+          Conversation{" "}
+          <mark className="rounded-md bg-yellow px-1 text-yellow-foreground">mode</mark>
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           You sign, they speak — both sides land in one shared transcript.
         </p>
 
@@ -102,9 +107,10 @@ function ConversationPage() {
 
           <section
             aria-labelledby="partner-heading"
-            className="glass-panel flex flex-col rounded-3xl p-5"
+            className="glass-panel relative overflow-hidden rounded-[28px] p-6"
           >
-            <h2 id="partner-heading" className="text-sm font-semibold">
+            <Sparkle className="absolute right-5 top-5 h-5 w-5 text-primary" />
+            <h2 id="partner-heading" className="text-sm font-bold">
               Conversation partner
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -112,21 +118,24 @@ function ConversationPage() {
                 ? "Tap the microphone and speak — your words are transcribed live."
                 : "Speech recognition isn't supported in this browser. Try Chrome or Edge."}
             </p>
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               {rec.status === "listening" ? (
-                <Button variant="outline" className="h-11 rounded-full px-5" onClick={rec.stop}>
+                <Button variant="outline" className="h-12 rounded-full px-5" onClick={rec.stop}>
                   <MicOff className="mr-1.5 h-4 w-4" aria-hidden="true" />
                   Stop listening
                 </Button>
               ) : (
-                <Button
-                  className="h-11 rounded-full px-5"
+                <CtaPill
                   disabled={!rec.supported}
                   onClick={rec.start}
+                  className="h-12 px-5"
+                  aria-label="Start listening to the conversation partner"
                 >
-                  <Mic className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                  Start listening
-                </Button>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Mic className="h-4 w-4" aria-hidden="true" />
+                    Start listening
+                  </span>
+                </CtaPill>
               )}
               <span className="text-xs text-muted-foreground" role="status">
                 {rec.status === "listening"
@@ -139,7 +148,7 @@ function ConversationPage() {
             <div className="mt-4 flex-1" />
             <Button
               variant="outline"
-              className="h-11 self-start rounded-full px-5"
+              className="h-12 self-start rounded-full px-5"
               disabled={!lastSignerMessage}
               onClick={() => {
                 if (lastSignerMessage) speak(lastSignerMessage.text);
@@ -158,7 +167,7 @@ function ConversationPage() {
           <div
             ref={logRef}
             aria-live="polite"
-            className="glass-panel h-72 overflow-y-auto rounded-3xl p-5"
+            className="glass-panel h-72 overflow-y-auto rounded-[28px] p-5"
           >
             {log.length === 0 ? (
               <p className="text-sm text-muted-foreground">
@@ -169,11 +178,17 @@ function ConversationPage() {
                 {log.map((e) => (
                   <li
                     key={e.id}
-                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
-                      e.speaker === "signer" ? "self-start bg-primary/10" : "self-end bg-muted"
+                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-soft ${
+                      e.speaker === "signer"
+                        ? "self-start bg-primary text-primary-foreground"
+                        : "self-end border border-border bg-card"
                     }`}
                   >
-                    <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span
+                      className={`mb-0.5 block text-[10px] font-bold uppercase tracking-wider ${
+                        e.speaker === "signer" ? "text-yellow" : "text-yellow-600 dark:text-yellow"
+                      }`}
+                    >
                       {e.speaker === "signer" ? "Signed" : "Spoken"}
                     </span>
                     {e.text}

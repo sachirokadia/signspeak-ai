@@ -1,6 +1,9 @@
 "use client";
 
 import { Camera, Cpu, Database, Trash2 } from "lucide-react";
+import { StickerChip } from "@/components/ui/sticker-chip";
+import { Sparkle } from "@/components/ui/doodles";
+import { cn } from "@/lib/utils";
 
 /**
  * Privacy dashboard — shows exactly what happens to the user's data.
@@ -31,40 +34,44 @@ const FLOW = [
 
 export function PrivacyDashboard() {
   return (
-    <section aria-labelledby="privacy-heading" className="glass-panel rounded-3xl p-6 sm:p-8">
+    <section
+      aria-labelledby="privacy-heading"
+      className="glass-panel relative overflow-hidden rounded-[28px] p-6 sm:p-8"
+    >
+      <Sparkle className="absolute right-6 top-6 h-6 w-6 text-yellow" />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="privacy-heading" className="text-lg font-semibold">
+        <h2 id="privacy-heading" className="font-display text-xl font-bold">
           Your data, visualised
         </h2>
-        <span
-          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300"
-          role="status"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />0 bytes
-          uploaded this session
-        </span>
+        <StickerChip tone="yellow" tilt="right">
+          <span className="h-1.5 w-1.5 rounded-full bg-black" aria-hidden="true" />0 bytes uploaded
+          this session
+        </StickerChip>
       </div>
 
-      <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {FLOW.map((step, i) => (
           <li
             key={step.title}
-            className="relative rounded-2xl border border-border bg-background/60 p-4"
+            className={cn(
+              "relative rounded-[24px] border border-border bg-card p-5 shadow-sticker",
+              i % 2 === 0 ? "-rotate-1" : "rotate-1",
+            )}
           >
             <span
-              className="absolute -top-2.5 left-4 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground"
+              className="bg-brand absolute -top-3 left-5 grid h-7 w-7 place-items-center rounded-full text-xs font-bold text-primary-foreground shadow-sticker"
               aria-hidden="true"
             >
               {i + 1}
             </span>
-            <step.icon className="h-5 w-5 text-primary" aria-hidden="true" />
-            <h3 className="mt-2 text-sm font-semibold">{step.title}</h3>
+            <step.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+            <h3 className="mt-2 text-sm font-bold">{step.title}</h3>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.body}</p>
           </li>
         ))}
       </ol>
 
-      <p className="mt-5 text-xs text-muted-foreground">
+      <p className="mt-6 text-xs text-muted-foreground">
         Network requests during a session are limited to loading the app itself and the open-source
         hand-tracking model — both cached after first load for offline use. Audit it yourself in
         DevTools → Network.

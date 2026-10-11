@@ -8,6 +8,8 @@ import { SkipLink } from "@/components/a11y/SkipLink";
 import { WebcamPanel } from "@/components/dashboard/WebcamPanel";
 import { PerformanceHUD } from "@/components/dashboard/PerformanceHUD";
 import { Button } from "@/components/ui/button";
+import { StickerChip } from "@/components/ui/sticker-chip";
+import { Sparkle } from "@/components/ui/doodles";
 import { useGesturePipeline } from "@/hooks/useGesturePipeline";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { GESTURE_DEFINITIONS } from "@/lib/vision/classifier";
@@ -16,6 +18,7 @@ import {
   listGestureSamples,
   type CustomPredictor,
 } from "@/lib/vision/customGestures";
+import { cn } from "@/lib/utils";
 
 const title = "Learn mode — SignSpeak AI";
 const description = "Practice hand gestures with live feedback: hold each sign steady to score.";
@@ -174,11 +177,11 @@ function LearnPage() {
       <SkipLink />
       <Navbar />
       <main id="main-content" className="mx-auto max-w-7xl px-5 py-10">
-        <h1 className="flex items-center gap-2 text-2xl font-semibold sm:text-3xl">
-          <GraduationCap className="h-7 w-7" aria-hidden="true" />
-          Learn mode
+        <h1 className="font-display flex items-center gap-2 text-3xl font-bold sm:text-4xl">
+          <GraduationCap className="h-8 w-8" aria-hidden="true" />
+          Learn <mark className="rounded-md bg-yellow px-1 text-yellow-foreground">mode</mark>
         </h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Pick a gesture, then hold it steady in front of the camera until the ring fills. Your best
           scores are saved on this device.
         </p>
@@ -192,12 +195,13 @@ function LearnPage() {
           <div className="flex flex-col gap-5">
             <section
               aria-labelledby="practice-heading"
-              className="glass-panel rounded-3xl p-6 text-center"
+              className="glass-panel relative overflow-hidden rounded-[28px] p-6 text-center"
             >
-              <h2 id="practice-heading" className="text-sm font-semibold text-muted-foreground">
+              <Sparkle className="absolute left-5 top-5 h-5 w-5 text-yellow" />
+              <h2 id="practice-heading" className="text-sm font-bold text-muted-foreground">
                 Now practising
               </h2>
-              <p className="mt-1 text-3xl font-bold">{target.label}</p>
+              <p className="font-display mt-1 text-4xl font-bold tracking-tight">{target.label}</p>
               <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">{target.hint}</p>
 
               <div
@@ -224,7 +228,7 @@ function LearnPage() {
                     fill="none"
                     strokeWidth="10"
                     strokeLinecap="round"
-                    className="stroke-primary transition-[stroke-dashoffset]"
+                    className="stroke-yellow transition-[stroke-dashoffset]"
                     strokeDasharray={2 * Math.PI * 42}
                     strokeDashoffset={2 * Math.PI * 42 * (1 - progress)}
                   />
@@ -236,17 +240,17 @@ function LearnPage() {
                 </div>
               </div>
 
-              <div className="mt-4 flex min-h-8 items-center justify-center gap-4 text-sm">
+              <div className="mt-4 flex min-h-8 items-center justify-center gap-3 text-sm">
                 {lastScore !== null ? (
                   <span role="status">
                     Last attempt: <strong>{lastScore}</strong>
                   </span>
                 ) : null}
                 {best[target.id] ? (
-                  <span className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
-                    <Trophy className="h-4 w-4" aria-hidden="true" />
-                    Best: <strong>{best[target.id]}</strong>
-                  </span>
+                  <StickerChip tone="yellow" tilt="right">
+                    <Trophy className="h-3.5 w-3.5" aria-hidden="true" />
+                    Best: {best[target.id]}
+                  </StickerChip>
                 ) : null}
               </div>
 
@@ -265,33 +269,59 @@ function LearnPage() {
               </Button>
             </section>
 
-            <section aria-labelledby="pick-heading" className="glass-panel rounded-3xl p-5">
-              <h2 id="pick-heading" className="text-sm font-semibold">
+            <section aria-labelledby="pick-heading" className="glass-panel rounded-[28px] p-6">
+              <h2 id="pick-heading" className="text-sm font-bold">
                 Choose a gesture ({targets.length})
               </h2>
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {targets.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => selectTarget(t.id)}
-                    aria-pressed={t.id === targetId}
-                    className={`rounded-2xl border px-3 py-2.5 text-left text-sm transition-colors ${
-                      t.id === targetId
-                        ? "border-primary bg-primary/10 font-semibold"
-                        : "border-border bg-background/60 hover:border-primary/50"
-                    }`}
-                  >
-                    <span className="block truncate">{t.label}</span>
-                    {best[t.id] ? (
-                      <span className="text-xs text-amber-600 dark:text-amber-400">
-                        Best {best[t.id]}
+              <div className="mt-4 flex flex-wrap gap-4">
+                {targets.map((t, i) => {
+                  const rings = ["ring-primary", "ring-yellow", "ring-teal-400"];
+                  const fills = [
+                    "bg-primary text-primary-foreground",
+                    "bg-yellow text-yellow-foreground",
+                    "bg-teal-400 text-teal-950",
+                  ];
+                  const ring = rings[i % rings.length]!;
+                  const fill = fills[i % fills.length]!;
+                  const selected = t.id === targetId;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => selectTarget(t.id)}
+                      aria-pressed={selected}
+                      className="group flex w-20 flex-col items-center gap-1.5 rounded-2xl px-1 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <span
+                        className={cn(
+                          "ring-offset-background grid h-14 w-14 place-items-center rounded-full text-lg font-bold ring-2 ring-offset-2 transition-transform group-hover:scale-105",
+                          ring,
+                          fill,
+                          selected && "scale-105",
+                        )}
+                        aria-hidden="true"
+                      >
+                        {t.label.charAt(0).toUpperCase()}
                       </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Not tried</span>
-                    )}
-                  </button>
-                ))}
+                      <span
+                        className={cn(
+                          "max-w-full truncate text-xs font-semibold",
+                          selected ? "text-foreground" : "text-muted-foreground",
+                        )}
+                      >
+                        {t.label}
+                      </span>
+                      {best[t.id] ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-yellow px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-yellow-foreground shadow-sticker">
+                          <Trophy className="h-2.5 w-2.5" aria-hidden="true" />
+                          {best[t.id]}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground">Not tried</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </section>
           </div>

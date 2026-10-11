@@ -1,9 +1,14 @@
+"use client";
+
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { ChevronsRight, Menu, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ctaPillClasses } from "@/components/ui/cta-pill";
+import { useTheme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/dashboard", label: "Dashboard" },
@@ -13,6 +18,28 @@ const links = [
   { to: "/contact", label: "Contact" },
   { to: "/settings", label: "Settings" },
 ] as const;
+
+function ThemeToggle({ labelClassName = "" }: { labelClassName?: string }) {
+  const { theme, toggleTheme } = useTheme();
+  const dark = theme === "dark";
+  return (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      className={cn(
+        "grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-card text-foreground shadow-soft transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        labelClassName,
+      )}
+    >
+      {dark ? (
+        <Sun className="h-[18px] w-[18px]" aria-hidden="true" />
+      ) : (
+        <Moon className="h-[18px] w-[18px]" aria-hidden="true" />
+      )}
+    </button>
+  );
+}
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -27,7 +54,7 @@ export function Navbar() {
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+              className="rounded-full px-3.5 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               activeProps={{ className: "bg-surface text-foreground" }}
             >
               {link.label}
@@ -35,14 +62,18 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="ml-auto flex items-center gap-2 lg:ml-2">
-          <Button
-            asChild
-            size="sm"
-            className="bg-brand rounded-full px-4 shadow-soft transition-transform hover:scale-[1.03]"
+        <div className="ml-auto flex items-center gap-2.5 lg:ml-3">
+          <div className="hidden lg:block">
+            <ThemeToggle />
+          </div>
+          <Link
+            to="/dashboard"
+            className={cn(ctaPillClasses, "h-10 px-5 text-sm")}
+            aria-label="Launch the SignSpeak app"
           >
-            <Link to="/dashboard">Launch app</Link>
-          </Button>
+            Launch app
+            <ChevronsRight className="h-5 w-5 shrink-0" aria-hidden="true" />
+          </Link>
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -50,7 +81,7 @@ export function Navbar() {
                 variant="ghost"
                 size="icon"
                 aria-label="Open menu"
-                className="min-h-11 min-w-11 lg:hidden"
+                className="min-h-11 min-w-11 rounded-full lg:hidden"
               >
                 <Menu className="h-5 w-5" />
               </Button>
@@ -63,12 +94,16 @@ export function Navbar() {
                     key={link.to}
                     to={link.to}
                     onClick={() => setOpen(false)}
-                    className="rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+                    className="rounded-full px-3 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     activeProps={{ className: "bg-surface text-foreground" }}
                   >
                     {link.label}
                   </Link>
                 ))}
+                <div className="mt-4 flex items-center justify-between rounded-full border border-border bg-card px-4 py-2.5">
+                  <span className="text-sm font-semibold text-foreground">Appearance</span>
+                  <ThemeToggle />
+                </div>
               </div>
             </SheetContent>
           </Sheet>

@@ -2,11 +2,17 @@
 
 import { MessageSquareText, Trash2, Volume2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CtaPill } from "@/components/ui/cta-pill";
+import { StickerChip } from "@/components/ui/sticker-chip";
+import { Sparkle } from "@/components/ui/doodles";
 
 export type SentenceWord = {
   id: string;
   text: string;
 };
+
+const WORD_TONES = ["yellow", "violet", "ghost"] as const;
+const WORD_TILTS = ["left", "right", "none"] as const;
 
 /**
  * Composes confirmed gestures into a speakable sentence. Each stable
@@ -29,8 +35,9 @@ export function SentenceBuilder({
         <h2 id="sentence-heading" className="flex items-center gap-2 text-sm font-semibold">
           <MessageSquareText className="h-4 w-4" aria-hidden="true" />
           Sentence builder
+          <Sparkle className="h-3.5 w-3.5 text-yellow" />
         </h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             size="sm"
             variant="outline"
@@ -41,15 +48,10 @@ export function SentenceBuilder({
             <Trash2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
             Clear
           </Button>
-          <Button
-            size="sm"
-            className="rounded-full"
-            onClick={onSpeak}
-            disabled={words.length === 0}
-          >
-            <Volume2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+          <CtaPill onClick={onSpeak} disabled={words.length === 0} className="h-9 px-4 text-[13px]">
+            <Volume2 className="h-3.5 w-3.5" aria-hidden="true" />
             Speak sentence
-          </Button>
+          </CtaPill>
         </div>
       </div>
 
@@ -60,21 +62,23 @@ export function SentenceBuilder({
         </p>
       ) : (
         <div className="mt-3 flex flex-wrap gap-2" role="list" aria-label="Composed sentence">
-          {words.map((w) => (
-            <span
-              key={w.id}
-              role="listitem"
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background py-1.5 pl-3.5 pr-2 text-sm"
-            >
-              {w.text}
-              <button
-                type="button"
-                onClick={() => onRemoveWord(w.id)}
-                aria-label={`Remove word ${w.text}`}
-                className="grid h-5 w-5 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          {words.map((w, i) => (
+            <span key={w.id} role="listitem">
+              <StickerChip
+                tone={WORD_TONES[i % WORD_TONES.length] ?? "yellow"}
+                tilt={WORD_TILTS[i % WORD_TILTS.length] ?? "none"}
+                className="py-1.5 pr-1.5 pl-3.5 text-sm"
               >
-                <X className="h-3 w-3" aria-hidden="true" />
-              </button>
+                {w.text}
+                <button
+                  type="button"
+                  onClick={() => onRemoveWord(w.id)}
+                  aria-label={`Remove word ${w.text}`}
+                  className="grid h-5 w-5 place-items-center rounded-full transition-colors hover:bg-black/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
+                >
+                  <X className="h-3 w-3" aria-hidden="true" />
+                </button>
+              </StickerChip>
             </span>
           ))}
         </div>

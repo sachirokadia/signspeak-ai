@@ -1,7 +1,6 @@
 "use client";
 
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { toast } from "sonner";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
@@ -17,6 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StickerChip } from "@/components/ui/sticker-chip";
+import { Sparkle } from "@/components/ui/doodles";
+import { useSettings } from "@/lib/settings";
+import { clearHistory } from "@/lib/historyStore";
 
 const title = "Settings — SignSpeak AI";
 const description =
@@ -44,8 +47,9 @@ function SettingsCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="glass-panel rounded-3xl p-7">
-      <h2 className="text-base font-semibold">{heading}</h2>
+    <section className="glass-panel relative overflow-hidden rounded-[28px] p-7">
+      <Sparkle className="absolute right-6 top-6 h-5 w-5 text-yellow" aria-hidden="true" />
+      <h2 className="font-display text-lg font-bold">{heading}</h2>
       <p className="mt-1 text-sm text-muted-foreground">{hint}</p>
       <div className="mt-6 space-y-6">{children}</div>
     </section>
@@ -77,20 +81,20 @@ function Row({
 }
 
 function Settings() {
-  const [vocabulary, setVocabulary] = useState("asl");
-  const [voice, setVoice] = useState("warm");
-  const [sensitivity, setSensitivity] = useState(72);
-  const [rate, setRate] = useState(1);
-  const [autoSpeak, setAutoSpeak] = useState(true);
-  const [saveHistory, setSaveHistory] = useState(true);
-  const [largeText, setLargeText] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const { settings, updateSettings } = useSettings();
 
   return (
     <div className="min-h-dvh bg-soft">
       <Navbar />
       <main className="mx-auto max-w-3xl px-5 py-14">
-        <h1 className="text-3xl font-semibold">Settings</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">
+            <mark className="rounded-md bg-yellow px-1 text-yellow-foreground">Settings</mark>
+          </h1>
+          <StickerChip tone="violet" tilt="right">
+            Auto-saved on this device
+          </StickerChip>
+        </div>
         <p className="mt-2 text-sm text-muted-foreground">
           Preferences apply instantly and are stored on this device.
         </p>
@@ -103,7 +107,10 @@ function Settings() {
                 label="Gesture vocabulary"
                 description="Base sign set used for matching."
                 control={
-                  <Select value={vocabulary} onValueChange={setVocabulary}>
+                  <Select
+                    value={settings.vocabulary}
+                    onValueChange={(v) => updateSettings({ vocabulary: v })}
+                  >
                     <SelectTrigger id="vocabulary" className="w-40">
                       <SelectValue />
                     </SelectTrigger>
@@ -120,7 +127,7 @@ function Settings() {
                   <Label htmlFor="sensitivity" className="text-sm font-medium">
                     Detection sensitivity
                   </Label>
-                  <span className="text-xs text-muted-foreground">{sensitivity}%</span>
+                  <span className="text-xs text-muted-foreground">{settings.sensitivity}%</span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Higher values react faster but may produce more false positives.
@@ -128,11 +135,11 @@ function Settings() {
                 <Slider
                   id="sensitivity"
                   className="mt-4"
-                  value={[sensitivity]}
+                  value={[settings.sensitivity]}
                   min={30}
                   max={100}
                   step={1}
-                  onValueChange={([value]) => setSensitivity(value ?? 70)}
+                  onValueChange={([value]) => updateSettings({ sensitivity: value ?? 72 })}
                 />
               </div>
             </SettingsCard>
@@ -145,7 +152,10 @@ function Settings() {
                 label="Voice"
                 description="Applies to all spoken output."
                 control={
-                  <Select value={voice} onValueChange={setVoice}>
+                  <Select
+                    value={settings.voice}
+                    onValueChange={(v) => updateSettings({ voice: v })}
+                  >
                     <SelectTrigger id="voice" className="w-40">
                       <SelectValue />
                     </SelectTrigger>
@@ -162,7 +172,11 @@ function Settings() {
                 label="Speak automatically"
                 description="Play each recognised phrase as soon as it's confident."
                 control={
-                  <Switch id="auto-speak" checked={autoSpeak} onCheckedChange={setAutoSpeak} />
+                  <Switch
+                    id="auto-speak"
+                    checked={settings.autoSpeak}
+                    onCheckedChange={(v) => updateSettings({ autoSpeak: v })}
+                  />
                 }
               />
               <div>
@@ -170,16 +184,18 @@ function Settings() {
                   <Label htmlFor="rate" className="text-sm font-medium">
                     Speech rate
                   </Label>
-                  <span className="text-xs text-muted-foreground">{rate.toFixed(1)}×</span>
+                  <span className="text-xs text-muted-foreground">
+                    {settings.speechRate.toFixed(1)}×
+                  </span>
                 </div>
                 <Slider
                   id="rate"
                   className="mt-4"
-                  value={[rate]}
+                  value={[settings.speechRate]}
                   min={0.5}
                   max={1.8}
                   step={0.1}
-                  onValueChange={([value]) => setRate(value ?? 1)}
+                  onValueChange={([value]) => updateSettings({ speechRate: value ?? 1 })}
                 />
               </div>
             </SettingsCard>
@@ -195,7 +211,11 @@ function Settings() {
                 label="Larger text"
                 description="Increase base font size across the app."
                 control={
-                  <Switch id="large-text" checked={largeText} onCheckedChange={setLargeText} />
+                  <Switch
+                    id="large-text"
+                    checked={settings.largeText}
+                    onCheckedChange={(v) => updateSettings({ largeText: v })}
+                  />
                 }
               />
               <Row
@@ -205,8 +225,8 @@ function Settings() {
                 control={
                   <Switch
                     id="reduce-motion"
-                    checked={reduceMotion}
-                    onCheckedChange={setReduceMotion}
+                    checked={settings.reduceMotion}
+                    onCheckedChange={(v) => updateSettings({ reduceMotion: v })}
                   />
                 }
               />
@@ -225,29 +245,29 @@ function Settings() {
                 control={
                   <Switch
                     id="save-history"
-                    checked={saveHistory}
-                    onCheckedChange={setSaveHistory}
+                    checked={settings.saveHistory}
+                    onCheckedChange={(v) => updateSettings({ saveHistory: v })}
                   />
                 }
               />
               <Button
                 variant="outline"
                 className="h-11 rounded-full px-5"
-                onClick={() =>
-                  toast("History cleared", { description: "All stored phrases were removed." })
-                }
+                onClick={() => {
+                  clearHistory();
+                  toast("History cleared", {
+                    description: "All stored phrases were removed.",
+                  });
+                }}
               >
                 Clear stored history
               </Button>
             </SettingsCard>
           </Reveal>
 
-          <Button
-            className="bg-brand h-12 w-full rounded-full text-[15px]"
-            onClick={() => toast("Preferences saved")}
-          >
-            Save preferences
-          </Button>
+          <p className="text-center text-sm text-muted-foreground" role="status">
+            Preferences save automatically on this device.
+          </p>
         </div>
       </main>
       <Footer />
