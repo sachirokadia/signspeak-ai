@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { AppLang } from "@/lib/i18n/phrases";
+import type { CustomModelVersion } from "@/lib/vision/customModel";
 
 export type Settings = {
   lang: AppLang;
@@ -13,6 +14,7 @@ export type Settings = {
   saveHistory: boolean;
   largeText: boolean;
   reduceMotion: boolean;
+  modelVersion: CustomModelVersion;
 };
 
 const KEY = "signspeak-settings-v1";
@@ -27,7 +29,12 @@ const DEFAULTS: Settings = {
   saveHistory: true,
   largeText: false,
   reduceMotion: false,
+  modelVersion: "v3",
 };
+
+function isModelVersion(v: unknown): v is CustomModelVersion {
+  return v === "v1" || v === "v2" || v === "v3";
+}
 
 function load(): Settings {
   try {
@@ -47,6 +54,9 @@ function load(): Settings {
       largeText: typeof parsed.largeText === "boolean" ? parsed.largeText : DEFAULTS.largeText,
       reduceMotion:
         typeof parsed.reduceMotion === "boolean" ? parsed.reduceMotion : DEFAULTS.reduceMotion,
+      modelVersion: isModelVersion(parsed.modelVersion)
+        ? parsed.modelVersion
+        : DEFAULTS.modelVersion,
     };
   } catch {
     return DEFAULTS;
