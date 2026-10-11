@@ -1,8 +1,12 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { GestureHistory } from "@/components/dashboard/GestureHistory";
-import { SEED_HISTORY } from "@/lib/gestures";
+import { loadHistory } from "@/lib/historyStore";
+import type { HistoryEntry } from "@/lib/gestures";
 
 const title = "History — SignSpeak AI";
 const description =
@@ -21,10 +25,17 @@ export const Route = createFileRoute("/history")({
 });
 
 function HistoryPage() {
-  const total = SEED_HISTORY.length;
-  const average = Math.round(
-    (SEED_HISTORY.reduce((sum, e) => sum + e.confidence, 0) / total) * 100,
-  );
+  const [entries, setEntries] = useState<HistoryEntry[]>([]);
+
+  useEffect(() => {
+    setEntries(loadHistory());
+  }, []);
+
+  const total = entries.length;
+  const average =
+    total > 0
+      ? Math.round((entries.reduce((sum, e) => sum + e.confidence, 0) / total) * 100)
+      : 0;
 
   return (
     <div className="min-h-dvh bg-soft">
@@ -48,7 +59,7 @@ function HistoryPage() {
           ))}
         </div>
 
-        <GestureHistory entries={SEED_HISTORY} className="mt-6" height="h-[26rem]" />
+        <GestureHistory entries={entries} className="mt-6" height="h-[26rem]" />
       </main>
       <Footer />
     </div>
