@@ -3,9 +3,12 @@
 /**
  * CustomModel — our own trained neural network for gesture recognition.
  *
- * Trained on 1,004 HaGRID hand images (11 gesture classes) using the app's
- * exact landmark normalisation. 88.8% test accuracy. 230KB ONNX model,
- * runs on-device via onnxruntime-web (WASM, no server).
+ * v2 (2026-10-11): trained on 2,304 HaGRID vectors (11 gesture classes,
+ * pooled from the 34-class set) using the app's exact landmark normalisation.
+ * 87.5% on a fresh 576-image held-out test set — the v1 model scored 74.7%
+ * on the same set, so v2 wins by 12.9pp and is far more balanced
+ * (weakest class three 84.1%, vs v1's three 34.1%).
+ * 205KB ONNX model, runs on-device via onnxruntime-web (WASM, no server).
  *
  * Used as the second-stage classifier: MediaPipe's net first, this model
  * for gestures MediaPipe doesn't know, rules as final fallback.
