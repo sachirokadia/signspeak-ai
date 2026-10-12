@@ -11,7 +11,7 @@
  * No analytics, no push, no background sync — the worker never exfiltrates.
  */
 const APP_CACHE = "signspeak-app-v2";
-const MODEL_CACHE = "signspeak-models-v2";
+const MODEL_CACHE = "signspeak-models-v3";
 const APP_SHELL = ["/", "/dashboard", "/privacy", "/manifest.webmanifest"];
 
 const MODEL_ORIGINS = new Set(["https://cdn.jsdelivr.net", "https://storage.googleapis.com"]);

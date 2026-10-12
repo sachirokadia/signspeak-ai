@@ -20,6 +20,11 @@ import { StickerChip } from "@/components/ui/sticker-chip";
 import { Sparkle } from "@/components/ui/doodles";
 import { useSettings } from "@/lib/settings";
 import { clearHistory } from "@/lib/historyStore";
+import {
+  CUSTOM_MODEL_VERSIONS,
+  setCustomModelVersion,
+  type CustomModelVersion,
+} from "@/lib/vision/customModel";
 
 const title = "Settings — SignSpeak AI";
 const description =
@@ -102,6 +107,35 @@ function Settings() {
         <div className="mt-8 space-y-5">
           <Reveal>
             <SettingsCard heading="Recognition" hint="How the model interprets your hands.">
+              <Row
+                htmlFor="model-version"
+                label="Neural net version"
+                description="Our custom-trained gesture model. Higher accuracy, same gestures."
+                control={
+                  <Select
+                    value={settings.modelVersion}
+                    onValueChange={(v) => {
+                      const version = v as CustomModelVersion;
+                      setCustomModelVersion(version);
+                      updateSettings({ modelVersion: version });
+                      toast("Model switched", {
+                        description: `Now using v${version.slice(1)} of the gesture neural net.`,
+                      });
+                    }}
+                  >
+                    <SelectTrigger id="model-version" className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CUSTOM_MODEL_VERSIONS.map(({ id, accuracy }) => (
+                        <SelectItem key={id} value={id}>
+                          {id.toUpperCase()} · {accuracy}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                }
+              />
               <Row
                 htmlFor="vocabulary"
                 label="Gesture vocabulary"
