@@ -29,11 +29,11 @@ const DEFAULTS: Settings = {
   saveHistory: true,
   largeText: false,
   reduceMotion: false,
-  modelVersion: "v3",
+  modelVersion: "v4",
 };
 
 function isModelVersion(v: unknown): v is CustomModelVersion {
-  return v === "v1" || v === "v2" || v === "v3";
+  return v === "v1" || v === "v2" || v === "v3" || v === "v4";
 }
 
 function load(): Settings {

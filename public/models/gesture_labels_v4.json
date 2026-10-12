@@ -1,0 +1,20 @@
+{
+  "labels": [
+    "call-me",
+    "thumbs-down",
+    "fist",
+    "four",
+    "thumbs-up",
+    "ok-sign",
+    "point",
+    "open-palm",
+    "peace",
+    "rock-on",
+    "three",
+    "vulcan",
+    "pinch",
+    "i-love-you",
+    "no_gesture"
+  ],
+  "note": "ONNX output index i -> labels[i] (app gesture id); v4 has 15 classes incl. no_gesture"
+}

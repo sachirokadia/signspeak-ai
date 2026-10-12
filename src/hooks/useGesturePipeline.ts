@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { handTracker } from "@/lib/vision/handTracker";
 import { classifyLandmarks, neuralToPrediction } from "@/lib/vision/classifier";
+import { arbitratePredictions } from "@/lib/vision/arbitration";
 import { classifyWithCustomModel, preloadCustomModel } from "@/lib/vision/customModel";
 import { GestureDecisionEngine } from "@/lib/vision/decisionEngine";
 import type { PipelineMetrics, RawPrediction, StableGesture, Vec3 } from "@/lib/vision/types";
@@ -74,7 +75,6 @@ export function useGesturePipeline(
     // Latest async ONNX prediction (updated in background, read synchronously).
     let customPred: RawPrediction | null = null;
     let customBusy = false;
-    let frameCount = 0;
 
     // Preload our custom ONNX model in the background.
     preloadCustomModel();
@@ -109,16 +109,13 @@ export function useGesturePipeline(
           latencyEma === 0 ? result.inferenceMs : latencyEma * 0.8 + result.inferenceMs * 0.2;
 
         const currentOpts = optsRef.current;
-        // Primary: MediaPipe's trained neural net.
-        const neuralPred =
-          result.neural && result.neural.name !== "None"
-            ? neuralToPrediction(result.neural.name, result.neural.score)
-            : null;
 
-        // Secondary: our custom ONNX model (async, cached). Run every 3rd
-        // frame to avoid overloading; the cached result is used synchronously.
-        frameCount++;
-        if (!neuralPred && !customBusy && frameCount % 3 === 0) {
+        // Stage 1: our custom ONNX model (async, cached). It covers the most
+        // gestures at the highest accuracy, so it runs every frame and
+        // outranks MediaPipe. Steady-state WASM inference is ~0.2ms, far
+        // below the frame budget, so no throttling is needed; the cached
+        // result is read synchronously below.
+        if (!customBusy) {
           customBusy = true;
           const lmCopy = result.landmarks;
           void classifyWithCustomModel(lmCopy).then((p) => {
@@ -127,13 +124,19 @@ export function useGesturePipeline(
           });
         }
 
-        // Tertiary: geometric rules for gestures neither net knows.
-        const pred =
-          neuralPred ??
-          customPred ??
-          classifyLandmarks(result.landmarks) ??
-          currentOpts.customPredict?.(result.landmarks) ??
-          null;
+        // Stage 2: MediaPipe's trained neural net (backup).
+        const neuralPred =
+          result.neural && result.neural.name !== "None"
+            ? neuralToPrediction(result.neural.name, result.neural.score)
+            : null;
+
+        // Stage 3: geometric rules. Stage 4: user-taught k-NN predictor.
+        const pred = arbitratePredictions({
+          custom: customPred,
+          neural: neuralPred,
+          rules: classifyLandmarks(result.landmarks),
+          customFallback: currentOpts.customPredict?.(result.landmarks) ?? null,
+        });
         const key = pred ? `${pred.gesture.id}:${Math.round(pred.confidence * 20)}` : "none";
         if (key !== lastLiveKey.current) {
           lastLiveKey.current = key;

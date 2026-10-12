@@ -1,0 +1,21 @@
+{
+  "thresholds": {
+    "call-me": 0.5,
+    "thumbs-down": 0.5,
+    "fist": 0.5,
+    "four": 0.5,
+    "thumbs-up": 0.5,
+    "ok-sign": 0.5,
+    "point": 0.5,
+    "open-palm": 0.5,
+    "peace": 0.5,
+    "rock-on": 0.5,
+    "three": 0.5,
+    "vulcan": 0.5,
+    "pinch": 0.5,
+    "i-love-you": 0.5,
+    "no_gesture": 0.5
+  },
+  "no_gesture_threshold": 0.5,
+  "note": "per-gesture min confidence for >=95% precision on TestC; app returns null below threshold"
+}
