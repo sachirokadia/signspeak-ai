@@ -73,10 +73,12 @@ function ConversationPage() {
     setVideoEl(video);
   }, []);
 
-  // Keep the latest message in view.
+  // Keep the latest message in view (smoothly, unless reduced motion is on).
   useEffect(() => {
     const el = logRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    const reduceMotion = document.documentElement.classList.contains("reduce-motion");
+    el.scrollTo({ top: el.scrollHeight, behavior: reduceMotion ? "auto" : "smooth" });
   }, [log]);
 
   const lastSignerMessage = [...log].reverse().find((e) => e.speaker === "signer");
@@ -167,7 +169,7 @@ function ConversationPage() {
           <div
             ref={logRef}
             aria-live="polite"
-            className="glass-panel h-72 overflow-y-auto rounded-[28px] p-5"
+            className="glass-panel h-72 scroll-smooth overflow-y-auto rounded-[28px] p-5"
           >
             {log.length === 0 ? (
               <p className="text-sm text-muted-foreground">

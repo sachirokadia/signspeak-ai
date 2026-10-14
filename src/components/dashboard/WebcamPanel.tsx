@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, CameraOff, RefreshCcw, ScanLine } from "lucide-react";
+import { Camera, CameraOff, RefreshCcw, ScanLine, SwitchCamera } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BlobCard } from "@/components/ui/blob-card";
@@ -18,8 +18,14 @@ export function WebcamPanel({
   /** Receives the live <video> element (or null) for the vision pipeline. */
   onVideoReady: (video: HTMLVideoElement | null) => void;
 }) {
-  const { videoRef, status, error, retry } = useCamera(active);
+  const { videoRef, status, error, retry, facingMode, flipCamera, canFlip } = useCamera(active);
   const [mirrored, setMirrored] = useState(true);
+
+  // Front camera previews mirrored (like a mirror); the back camera shows the
+  // world as-is. The user can still override with the mirror toggle.
+  useEffect(() => {
+    setMirrored(facingMode === "user");
+  }, [facingMode]);
 
   useEffect(() => {
     onVideoReady(status === "live" ? videoRef.current : null);
@@ -43,6 +49,20 @@ export function WebcamPanel({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            {canFlip ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={
+                  facingMode === "user" ? "Switch to back camera" : "Switch to front camera"
+                }
+                title={facingMode === "user" ? "Switch to back camera" : "Switch to front camera"}
+                className="min-h-11 min-w-11 rounded-full text-white hover:bg-white/15 hover:text-white"
+                onClick={flipCamera}
+              >
+                <SwitchCamera className="h-4 w-4" />
+              </Button>
+            ) : null}
             <Button
               variant="ghost"
               size="icon"

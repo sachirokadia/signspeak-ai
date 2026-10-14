@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export type CameraStatus = "idle" | "starting" | "live" | "error";
 
+/** Which physical camera to use. "user" = front, "environment" = back. */
+export type FacingMode = "user" | "environment";
+
 /**
  * Owns the getUserMedia lifecycle for a <video> element. Attach the returned
  * ref to the video element; the stream starts/stops with `active`.
@@ -14,6 +17,8 @@ export function useCamera(active: boolean) {
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+  const [facingMode, setFacingMode] = useState<FacingMode>("user");
+  const [canFlip, setCanFlip] = useState(false);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -28,21 +33,76 @@ export function useCamera(active: boolean) {
     setRetryCount((c) => c + 1);
   }, []);
 
+  /** Toggle between front and back camera; the stream restarts automatically. */
+  const flipCamera = useCallback(() => {
+    setFacingMode((m) => (m === "user" ? "environment" : "user"));
+  }, []);
+
+  // Detect whether the device has more than one camera (to show the flip button).
+  useEffect(() => {
+    if (!active || !navigator.mediaDevices?.enumerateDevices) return;
+    let cancelled = false;
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        if (!cancelled) {
+          setCanFlip(devices.filter((d) => d.kind === "videoinput").length > 1);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [active]);
+
   useEffect(() => {
     let cancelled = false;
 
-    async function start() {
+    function fail(e: unknown) {
+      if (cancelled) return;
+      setStatus("error");
+      const name = e instanceof DOMException ? e.name : "";
+      setError(
+        name === "NotAllowedError"
+          ? "Camera permission was denied. Allow camera access in your browser's site settings, then try again."
+          : name === "NotFoundError"
+            ? "No camera was found on this device. Connect a camera and try again."
+            : name === "NotReadableError"
+              ? "The camera is already in use by another app. Close the other app and try again."
+              : name === "OverconstrainedError"
+                ? "This camera doesn't support the requested settings. Try again — we'll fall back automatically."
+                : name === "SecurityError"
+                  ? "Camera access needs a secure (HTTPS) connection. Please use the https:// site address."
+                  : "Camera access was blocked. Enable permissions in your browser to start translating.",
+      );
+    }
+
+    async function start(mode: FacingMode) {
       setStatus("starting");
       setError("");
+      // Stop the previous stream before opening the new camera.
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "user",
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-          audio: false,
-        });
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { exact: mode },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+            audio: false,
+          });
+        } catch (e) {
+          // Fall back to the front camera if the back one is unavailable.
+          const name = e instanceof DOMException ? e.name : "";
+          if (mode !== "user" && (name === "OverconstrainedError" || name === "NotFoundError")) {
+            setFacingMode("user");
+            return;
+          }
+          throw e;
+        }
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
           return;
@@ -74,35 +134,20 @@ export function useCamera(active: boolean) {
         }
         if (!cancelled) setStatus("live");
       } catch (e) {
-        if (cancelled) return;
-        setStatus("error");
-        const name = e instanceof DOMException ? e.name : "";
-        setError(
-          name === "NotAllowedError"
-            ? "Camera permission was denied. Allow camera access in your browser's site settings, then try again."
-            : name === "NotFoundError"
-              ? "No camera was found on this device. Connect a camera and try again."
-              : name === "NotReadableError"
-                ? "The camera is already in use by another app. Close the other app and try again."
-                : name === "OverconstrainedError"
-                  ? "This camera doesn't support the requested settings. Try again — we'll fall back automatically."
-                  : name === "SecurityError"
-                    ? "Camera access needs a secure (HTTPS) connection. Please use the https:// site address."
-                    : "Camera access was blocked. Enable permissions in your browser to start translating.",
-        );
+        fail(e);
       }
     }
 
-    if (active) void start();
+    if (active) void start(facingMode);
     else stop();
 
     return () => {
       cancelled = true;
     };
-  }, [active, retryCount, stop]);
+  }, [active, retryCount, facingMode, stop]);
 
   // Always release the camera on unmount.
   useEffect(() => stop, [stop]);
 
-  return { videoRef, status, error, stop, retry };
+  return { videoRef, status, error, stop, retry, facingMode, flipCamera, canFlip };
 }
