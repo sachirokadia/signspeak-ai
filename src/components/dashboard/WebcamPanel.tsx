@@ -2,6 +2,7 @@
 
 import { Camera, CameraOff, RefreshCcw, ScanLine, SwitchCamera } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { BlobCard } from "@/components/ui/blob-card";
 import { CtaPill } from "@/components/ui/cta-pill";
@@ -18,7 +19,7 @@ export function WebcamPanel({
   /** Receives the live <video> element (or null) for the vision pipeline. */
   onVideoReady: (video: HTMLVideoElement | null) => void;
 }) {
-  const { videoRef, status, error, retry, facingMode, flipCamera, canFlip } = useCamera(active);
+  const { videoRef, status, error, retry, facingMode, flipCamera, notice } = useCamera(active);
   const [mirrored, setMirrored] = useState(true);
 
   // Front camera previews mirrored (like a mirror); the back camera shows the
@@ -26,6 +27,10 @@ export function WebcamPanel({
   useEffect(() => {
     setMirrored(facingMode === "user");
   }, [facingMode]);
+
+  useEffect(() => {
+    if (notice) toast(notice);
+  }, [notice]);
 
   useEffect(() => {
     onVideoReady(status === "live" ? videoRef.current : null);
@@ -42,31 +47,30 @@ export function WebcamPanel({
             </h2>
             <p className="truncate text-xs text-white/70">
               {status === "live"
-                ? "Tracking 21 hand landmarks · on-device"
+                ? `${facingMode === "user" ? "Front" : "Back"} camera · Tracking 21 hand landmarks · on-device`
                 : status === "starting"
                   ? "Requesting camera…"
                   : "Camera is off"}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            {canFlip ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={
-                  facingMode === "user" ? "Switch to back camera" : "Switch to front camera"
-                }
-                title={facingMode === "user" ? "Switch to back camera" : "Switch to front camera"}
-                className="min-h-11 min-w-11 rounded-full text-white hover:bg-white/15 hover:text-white"
-                onClick={flipCamera}
-              >
-                <SwitchCamera className="h-4 w-4" />
-              </Button>
-            ) : null}
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={
+                facingMode === "user" ? "Switch to back camera" : "Switch to front camera"
+              }
+              title={facingMode === "user" ? "Switch to back camera" : "Switch to front camera"}
+              className="min-h-11 min-w-11 rounded-full text-white hover:bg-white/15 hover:text-white"
+              onClick={flipCamera}
+            >
+              <SwitchCamera className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
               aria-label="Mirror camera"
+              title="Mirror camera"
               className="min-h-11 min-w-11 rounded-full text-white hover:bg-white/15 hover:text-white"
               onClick={() => setMirrored((m) => !m)}
             >

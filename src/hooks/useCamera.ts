@@ -18,7 +18,10 @@ export function useCamera(active: boolean) {
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
   const [facingMode, setFacingMode] = useState<FacingMode>("user");
-  const [canFlip, setCanFlip] = useState(false);
+  /** Transient message for the UI (e.g. back camera unavailable → fell back). */
+  const [notice, setNotice] = useState<string | null>(null);
+  // Carries a notice across the automatic restart that follows a fallback.
+  const pendingNoticeRef = useRef<string | null>(null);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -37,23 +40,6 @@ export function useCamera(active: boolean) {
   const flipCamera = useCallback(() => {
     setFacingMode((m) => (m === "user" ? "environment" : "user"));
   }, []);
-
-  // Detect whether the device has more than one camera (to show the flip button).
-  useEffect(() => {
-    if (!active || !navigator.mediaDevices?.enumerateDevices) return;
-    let cancelled = false;
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then((devices) => {
-        if (!cancelled) {
-          setCanFlip(devices.filter((d) => d.kind === "videoinput").length > 1);
-        }
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [active]);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,6 +66,8 @@ export function useCamera(active: boolean) {
     async function start(mode: FacingMode) {
       setStatus("starting");
       setError("");
+      setNotice(pendingNoticeRef.current);
+      pendingNoticeRef.current = null;
       // Stop the previous stream before opening the new camera.
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
@@ -98,6 +86,7 @@ export function useCamera(active: boolean) {
           // Fall back to the front camera if the back one is unavailable.
           const name = e instanceof DOMException ? e.name : "";
           if (mode !== "user" && (name === "OverconstrainedError" || name === "NotFoundError")) {
+            pendingNoticeRef.current = "Back camera isn't available — using the front camera.";
             setFacingMode("user");
             return;
           }
@@ -149,5 +138,5 @@ export function useCamera(active: boolean) {
   // Always release the camera on unmount.
   useEffect(() => stop, [stop]);
 
-  return { videoRef, status, error, stop, retry, facingMode, flipCamera, canFlip };
+  return { videoRef, status, error, stop, retry, facingMode, flipCamera, notice };
 }
